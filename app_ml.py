@@ -1,8 +1,6 @@
 import streamlit as st
 import requests
-import json
 from datetime import datetime, timezone
-from urllib.parse import urlencode
 
 st.set_page_config(page_title="Painel ML", page_icon="🛒", layout="wide")
 
@@ -16,8 +14,6 @@ section[data-testid="stSidebar"] { display: none; }
 .metric-label { font-size: 12px; color: #888; margin-bottom: 6px; }
 .metric-value { font-size: 30px; font-weight: 700; }
 .v-blue { color: #3483FA; } .v-red { color: #e53935; } .v-green { color: #1E8C45; } .v-yellow { color: #f5a623; }
-.section-title { font-size: 18px; font-weight: 700; margin: 1.5rem 0 0.75rem; display: flex; align-items: center; gap: 8px; }
-.section-title span { border-bottom: 3px solid #FFE600; padding-bottom: 2px; }
 .ml-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; }
 .ml-table th { padding: 11px 14px; text-align: left; font-weight: 600; font-size: 12px; color: #888; background: #fafafa; border-bottom: 1px solid #eee; }
 .ml-table td { padding: 11px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; color: #1a1a1a; }
@@ -37,6 +33,22 @@ a.ver { color: #3483FA; text-decoration: none; font-size: 12px; }
 .login-box p { font-size: 13px; color: #888; margin-bottom: 2rem; }
 .btn-login { display: inline-block; background: #FFE600; color: #1a1a1a; font-weight: 700; font-size: 15px; padding: 12px 32px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer; }
 .btn-login:hover { background: #e6cf00; }
+/* Expanders */
+[data-testid="stExpander"] {
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 12px !important;
+    margin-bottom: 10px !important;
+    background: #fff !important;
+    overflow: hidden;
+}
+[data-testid="stExpander"] > details > summary {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    padding: 0.85rem 1rem !important;
+}
+[data-testid="stExpander"] > details[open] > summary {
+    border-bottom: 1px solid #f0f0f0;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -44,6 +56,7 @@ CLIENT_ID     = st.secrets["ML_CLIENT_ID"]
 CLIENT_SECRET = st.secrets["ML_CLIENT_SECRET"]
 REDIRECT_URI  = st.secrets["ML_REDIRECT_URI"]
 
+# ── Helpers ────────────────────────────────────────────────
 def age_days(date_str):
     try:
         dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
@@ -73,6 +86,21 @@ def age_badge(days):
     if days > 365:
         return f'<span class="badge b-old">{fmt_age(days)}</span>'
     return fmt_age(days)
+
+SORT_OPTIONS = ["Mais vendidos", "Mais recentes", "Mais antigos", "Maior preço", "Menor preço"]
+
+def sort_data(data, criterion):
+    if criterion == "Mais vendidos":
+        return sorted(data, key=lambda l: l.get("sold_quantity") or 0, reverse=True)
+    elif criterion == "Mais recentes":
+        return sorted(data, key=lambda l: l.get("date_created", ""), reverse=True)
+    elif criterion == "Mais antigos":
+        return sorted(data, key=lambda l: l.get("date_created", ""))
+    elif criterion == "Maior preço":
+        return sorted(data, key=lambda l: l.get("price") or 0, reverse=True)
+    elif criterion == "Menor preço":
+        return sorted(data, key=lambda l: l.get("price") or 0)
+    return data
 
 def exchange_code(code):
     r = requests.post("https://api.mercadolibre.com/oauth/token", data={
@@ -105,7 +133,10 @@ def load_listings(token):
     all_ids = []
     offset = 0
     while True:
-        r = requests.get(f"https://api.mercadolibre.com/users/{user_id}/items/search?limit=50&offset={offset}", headers=headers, timeout=15)
+        r = requests.get(
+            f"https://api.mercadolibre.com/users/{user_id}/items/search?limit=50&offset={offset}",
+            headers=headers, timeout=15
+        )
         ids = r.json().get("results", [])
         all_ids.extend(ids)
         if len(ids) < 50: break
@@ -113,7 +144,11 @@ def load_listings(token):
     listings = []
     for i in range(0, len(all_ids), 20):
         chunk = all_ids[i:i+20]
-        r = requests.get(f"https://api.mercadolibre.com/items?ids={','.join(chunk)}&attributes=id,title,status,price,sold_quantity,date_created,permalink", headers=headers, timeout=15)
+        r = requests.get(
+            f"https://api.mercadolibre.com/items?ids={','.join(chunk)}"
+            f"&attributes=id,title,status,price,sold_quantity,date_created,permalink",
+            headers=headers, timeout=15
+        )
         for item in r.json():
             if item.get("code") == 200 and item.get("body"):
                 listings.append(item["body"])
@@ -126,14 +161,14 @@ def render_table(data):
     rows_html = ""
     for l in data:
         age = age_days(l.get("date_created", ""))
-        title = l.get("title","").replace('"','&quot;').replace('<','&lt;')
+        title = l.get("title", "").replace('"', '&quot;').replace('<', '&lt;')
         rows_html += f"""<tr>
           <td><span class="tc" title="{title}">{title}</span></td>
-          <td>{status_badge(l.get('status',''))}</td>
+          <td>{status_badge(l.get('status', ''))}</td>
           <td>{sales_badge(l.get('sold_quantity') or 0)}</td>
           <td>{fmt_price(l.get('price') or 0)}</td>
           <td>{age_badge(age)}</td>
-          <td><a class="ver" href="{l.get('permalink','#')}" target="_blank">ver ↗</a></td>
+          <td><a class="ver" href="{l.get('permalink', '#')}" target="_blank">ver ↗</a></td>
         </tr>"""
     st.markdown(f"""
     <table class="ml-table">
@@ -142,23 +177,26 @@ def render_table(data):
     </table><br>
     """, unsafe_allow_html=True)
 
-# ── Header ────────────────────────────────────────────────
+def section_sort(key, default_index=0):
+    """Renderiza o selectbox de ordenação alinhado à direita dentro de uma seção."""
+    _, col_sort = st.columns([4, 1])
+    with col_sort:
+        return st.selectbox("Ordenar por", SORT_OPTIONS, index=default_index, key=key, label_visibility="collapsed")
+
+# ── Header ─────────────────────────────────────────────────
 st.markdown("""
-<div style='background:#FFE600;padding:0.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between'>
-  <div style='display:flex;align-items:center;gap:12px'>
-    <div style='background:#3483FA;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center'>
-      <span style='color:#fff;font-size:16px'>✔</span>
-    </div>
-    <span style='font-size:19px;font-weight:700;color:#1a1a1a'>Painel de Anúncios</span>
-    <span style='font-size:13px;color:#555'>Mercado Livre Analytics</span>
+<div style='background:#FFE600;padding:0.85rem 1.5rem;display:flex;align-items:center;gap:12px'>
+  <div style='background:#3483FA;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center'>
+    <span style='color:#fff;font-size:16px'>✔</span>
   </div>
+  <span style='font-size:19px;font-weight:700;color:#1a1a1a'>Painel de Anúncios</span>
+  <span style='font-size:13px;color:#555'>Mercado Livre Analytics</span>
 </div>
 """, unsafe_allow_html=True)
 
-# ── OAuth flow ────────────────────────────────────────────
+# ── OAuth flow ─────────────────────────────────────────────
 params = st.query_params
 
-# Recebeu o code do ML após login
 if "code" in params and "access_token" not in st.session_state:
     with st.spinner("Autenticando..."):
         try:
@@ -171,7 +209,6 @@ if "code" in params and "access_token" not in st.session_state:
             st.error(f"Erro na autenticação: {e}")
             st.stop()
 
-# Não autenticado — mostra tela de login
 if "access_token" not in st.session_state:
     auth_url = (
         f"https://auth.mercadolivre.com.br/authorization"
@@ -189,7 +226,10 @@ if "access_token" not in st.session_state:
 
 # Renovar token se necessário
 access_token = st.session_state["access_token"]
-test = requests.get("https://api.mercadolibre.com/users/me", headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
+test = requests.get(
+    "https://api.mercadolibre.com/users/me",
+    headers={"Authorization": f"Bearer {access_token}"}, timeout=10
+)
 if test.status_code == 401 and st.session_state.get("refresh_token"):
     try:
         new_tokens = refresh_token_fn(st.session_state["refresh_token"])
@@ -201,7 +241,7 @@ if test.status_code == 401 and st.session_state.get("refresh_token"):
         del st.session_state["access_token"]
         st.rerun()
 
-# ── Carregar dados ────────────────────────────────────────
+# ── Carregar dados ─────────────────────────────────────────
 with st.spinner("Carregando seus anúncios..."):
     try:
         nickname, listings = load_listings(access_token)
@@ -217,18 +257,23 @@ paused   = [l for l in listings if l.get("status") == "paused"]
 closed   = [l for l in listings if l.get("status") == "closed"]
 now_str  = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-# Subtítulo + botão sair
-col_a, col_b = st.columns([6,1])
+# Barra de usuário + botão sair
+col_a, col_b = st.columns([6, 1])
 with col_a:
-    st.markdown(f"<div style='font-size:13px;color:#555;padding:0.4rem 0;background:#fffde7;border-bottom:1px solid #e0e0e0;padding-left:1rem'>Conectado como <strong>{nickname}</strong> · {now_str}</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='font-size:13px;color:#555;padding:0.4rem 0;background:#fffde7;"
+        f"border-bottom:1px solid #e0e0e0;padding-left:1rem'>"
+        f"Conectado como <strong>{nickname}</strong> · {now_str}</div>",
+        unsafe_allow_html=True
+    )
 with col_b:
     if st.button("🚪 Sair"):
-        for k in ["access_token","refresh_token"]:
+        for k in ["access_token", "refresh_token"]:
             st.session_state.pop(k, None)
         st.cache_data.clear()
         st.rerun()
 
-# Métricas
+# ── Métricas ───────────────────────────────────────────────
 st.markdown(f"""
 <div class="metric-grid">
   <div class="metric-card"><div class="metric-label">Total de anúncios</div><div class="metric-value v-blue">{total}</div></div>
@@ -240,7 +285,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Gráficos
+# ── Gráficos ───────────────────────────────────────────────
 age_bins = [0, 0, 0, 0]
 for l in listings:
     d = age_days(l.get("date_created", ""))
@@ -275,28 +320,62 @@ new Chart(document.getElementById('cAge'), {{
 </script>
 """, height=280)
 
-# Tabelas
-st.markdown(f'<div class="section-title">🔴 <span>Anúncios sem nenhuma venda ({len(no_sales)})</span></div>', unsafe_allow_html=True)
-render_table(sorted(no_sales, key=lambda l: age_days(l.get("date_created","")), reverse=True))
+# ── Seções colapsáveis ─────────────────────────────────────
 
-oldest = sorted(listings, key=lambda l: l.get("date_created",""))[:10]
-st.markdown('<div class="section-title" style="margin-top:1.5rem">📅 <span>Anúncios mais antigos (top 10)</span></div>', unsafe_allow_html=True)
-render_table(oldest)
+# 1. Sem vendas (aberta por padrão — merece atenção)
+with st.expander(f"🔴  Sem nenhuma venda  —  {len(no_sales)} anúncios", expanded=True):
+    ord_ns = section_sort("ord_nosales", default_index=2)  # Mais antigos por padrão
+    render_table(sort_data(no_sales, ord_ns))
 
-st.markdown(f'<div class="section-title" style="margin-top:1.5rem">📋 <span>Todos os anúncios ({total})</span></div>', unsafe_allow_html=True)
-col1, col2 = st.columns([2, 3])
-with col1:
-    filtro = st.selectbox("Status", ["Todos", "Ativos", "Pausados", "Fechados"], label_visibility="collapsed")
-with col2:
-    busca = st.text_input("Buscar", placeholder="Buscar por título...", label_visibility="collapsed")
+# 2. Com vendas
+with st.expander(f"🟢  Com vendas  —  {len(w_sales)} anúncios", expanded=False):
+    ord_ws = section_sort("ord_wsales", default_index=0)  # Mais vendidos por padrão
+    render_table(sort_data(w_sales, ord_ws))
 
-dados = listings
-if filtro == "Ativos":     dados = active
-elif filtro == "Pausados": dados = paused
-elif filtro == "Fechados": dados = closed
-if busca:
-    dados = [l for l in dados if busca.lower() in l.get("title","").lower()]
-dados = sorted(dados, key=lambda l: age_days(l.get("date_created","")), reverse=True)
-render_table(dados)
+# 3. Ativos
+with st.expander(f"✅  Ativos  —  {len(active)} anúncios", expanded=False):
+    ord_act = section_sort("ord_active", default_index=0)
+    render_table(sort_data(active, ord_act))
 
-st.markdown(f"<div style='text-align:center;font-size:12px;color:#aaa;padding:1.5rem'>Painel ML · {now_str}</div>", unsafe_allow_html=True)
+# 4. Pausados
+with st.expander(f"⏸️  Pausados  —  {len(paused)} anúncios", expanded=False):
+    ord_pau = section_sort("ord_paused", default_index=0)
+    render_table(sort_data(paused, ord_pau))
+
+# 5. Fechados
+with st.expander(f"🚫  Fechados  —  {len(closed)} anúncios", expanded=False):
+    ord_clo = section_sort("ord_closed", default_index=1)
+    render_table(sort_data(closed, ord_clo))
+
+# 6. Todos os anúncios com filtros combinados
+with st.expander(f"📋  Todos os anúncios  —  {total} anúncios", expanded=False):
+    col1, col2, col3 = st.columns([2, 3, 2])
+    with col1:
+        filtro = st.selectbox(
+            "Status", ["Todos", "Ativos", "Pausados", "Fechados"],
+            label_visibility="collapsed", key="filtro_todos"
+        )
+    with col2:
+        busca = st.text_input(
+            "Buscar", placeholder="🔍  Buscar por título...",
+            label_visibility="collapsed", key="busca_todos"
+        )
+    with col3:
+        ordem = st.selectbox(
+            "Ordenar", SORT_OPTIONS,
+            key="ord_todos", label_visibility="collapsed"
+        )
+
+    dados = listings
+    if filtro == "Ativos":     dados = active
+    elif filtro == "Pausados": dados = paused
+    elif filtro == "Fechados": dados = closed
+    if busca:
+        dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
+
+    render_table(sort_data(dados, ordem))
+
+st.markdown(
+    f"<div style='text-align:center;font-size:12px;color:#aaa;padding:1.5rem'>Painel ML · {now_str}</div>",
+    unsafe_allow_html=True
+)
