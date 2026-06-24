@@ -119,12 +119,14 @@ a.ver:hover { color: #fff; }
     border-radius: 14px !important;
     height: 90px !important;
     width: 100% !important;
-    padding: 0.85rem 1.2rem !important;
+    padding: 0.85rem 1.4rem !important;
     text-align: left !important;
-    white-space: pre-line !important;   /* permite \n no label */
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    white-space: pre-line !important;
     line-height: 1.5 !important;
-    font-size: 11px !important;         /* label pequeno */
-    color: #FFE600 !important;          /* amarelo */
+    font-size: 11px !important;
+    color: #FFE600 !important;
     font-weight: 600 !important;
     transition: border-color .15s, background .15s !important;
     cursor: pointer !important;
@@ -158,9 +160,20 @@ a.ver:hover { color: #fff; }
 .st-key-card_active button p::first-line,
 .st-key-card_paused button p::first-line,
 .st-key-card_closed button p::first-line {
-    font-size: 26px !important;
+    font-size: 34px !important;
     font-weight: 800 !important;
     color: #FFE600 !important;
+}
+
+/* Parágrafo alinhado à esquerda */
+.st-key-card_total button p,
+.st-key-card_nosales button p,
+.st-key-card_wsales button p,
+.st-key-card_active button p,
+.st-key-card_paused button p,
+.st-key-card_closed button p {
+    text-align: left !important;
+    width: 100% !important;
 }
 
 /* Card SELECIONADO — borda destacada */
