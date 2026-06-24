@@ -120,9 +120,9 @@ a.ver:hover { color: #fff; }
     height: 90px !important;
     width: 100% !important;
     padding: 0.85rem 1.4rem !important;
-    text-align: left !important;
-    justify-content: flex-start !important;
-    align-items: flex-start !important;
+    text-align: center !important;
+    justify-content: center !important;
+    align-items: center !important;
     white-space: pre-line !important;
     line-height: 1.5 !important;
     font-size: 11px !important;
@@ -165,14 +165,14 @@ a.ver:hover { color: #fff; }
     color: #FFE600 !important;
 }
 
-/* Parágrafo alinhado à esquerda */
+/* Parágrafo centralizado */
 .st-key-card_total button p,
 .st-key-card_nosales button p,
 .st-key-card_wsales button p,
 .st-key-card_active button p,
 .st-key-card_paused button p,
 .st-key-card_closed button p {
-    text-align: left !important;
+    text-align: center !important;
     width: 100% !important;
 }
 
@@ -225,7 +225,7 @@ a.ver:hover { color: #fff; }
 .st-key-ns_15 button p,
 .st-key-ns_30 button p,
 .st-key-ns_60 button p,
-.st-key-ns_60p button p { text-align: left !important; }
+.st-key-ns_60p button p { text-align: center !important; }
 
 /* Painel de tabela abaixo do grid */
 .table-panel {
