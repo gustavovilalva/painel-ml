@@ -119,13 +119,13 @@ a.ver:hover { color: #fff; }
     border-radius: 14px !important;
     height: 90px !important;
     width: 100% !important;
-    padding: 1rem 1.2rem !important;
+    padding: 0.85rem 1.2rem !important;
     text-align: left !important;
     white-space: pre-line !important;   /* permite \n no label */
-    line-height: 1.35 !important;
-    font-size: 13px !important;
-    color: #888 !important;
-    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    font-size: 11px !important;         /* label pequeno */
+    color: #FFE600 !important;          /* amarelo */
+    font-weight: 600 !important;
     transition: border-color .15s, background .15s !important;
     cursor: pointer !important;
 }
@@ -136,28 +136,32 @@ a.ver:hover { color: #fff; }
 .st-key-card_paused button:hover,
 .st-key-card_closed button:hover {
     background-color: #222 !important;
-    border-color: #444 !important;
+    border-color: #FFE600 !important;
 }
 
-/* Número grande — primeira linha do label */
-.st-key-card_total button p:first-child,
-.st-key-card_nosales button p:first-child,
-.st-key-card_wsales button p:first-child,
-.st-key-card_active button p:first-child,
-.st-key-card_paused button p:first-child,
-.st-key-card_closed button p:first-child {
-    font-size: 30px !important;
-    font-weight: 700 !important;
-    line-height: 1.1 !important;
+/* Número — segunda linha do label (texto maior) */
+.st-key-card_total button p,
+.st-key-card_nosales button p,
+.st-key-card_wsales button p,
+.st-key-card_active button p,
+.st-key-card_paused button p,
+.st-key-card_closed button p {
+    font-size: 11px !important;
+    color: #FFE600 !important;
+    line-height: 1.5 !important;
 }
 
-/* Cores dos números por categoria */
-.st-key-card_total   button { color: #888 !important; }
-.st-key-card_nosales button { color: #888 !important; }
-.st-key-card_wsales  button { color: #888 !important; }
-.st-key-card_active  button { color: #888 !important; }
-.st-key-card_paused  button { color: #888 !important; }
-.st-key-card_closed  button { color: #888 !important; }
+/* Número (primeira linha) — maior e bold */
+.st-key-card_total button p::first-line,
+.st-key-card_nosales button p::first-line,
+.st-key-card_wsales button p::first-line,
+.st-key-card_active button p::first-line,
+.st-key-card_paused button p::first-line,
+.st-key-card_closed button p::first-line {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: #FFE600 !important;
+}
 
 /* Card SELECIONADO — borda destacada */
 .st-key-card_total.selected-card button   { border-color: #FFE600 !important; background: #1e1c00 !important; }
@@ -358,22 +362,27 @@ if "access_token" not in st.session_state:
     """, unsafe_allow_html=True)
     st.stop()
 
-# Renovar token se necessário
+# Renovar token se necessário — verifica no máximo 1× a cada 5 min
+import time as _time
 access_token = st.session_state["access_token"]
-test = requests.get(
-    "https://api.mercadolibre.com/users/me",
-    headers={"Authorization": f"Bearer {access_token}"}, timeout=10
-)
-if test.status_code == 401 and st.session_state.get("refresh_token"):
-    try:
-        new_tokens = refresh_token_fn(st.session_state["refresh_token"])
-        st.session_state["access_token"]  = new_tokens["access_token"]
-        st.session_state["refresh_token"] = new_tokens.get("refresh_token", st.session_state["refresh_token"])
-        access_token = st.session_state["access_token"]
-        st.cache_data.clear()
-    except:
-        del st.session_state["access_token"]
-        st.rerun()
+_last_check  = st.session_state.get("_last_token_check", 0)
+
+if _time.time() - _last_check > 300:          # só bate na API a cada 5 min
+    test = requests.get(
+        "https://api.mercadolibre.com/users/me",
+        headers={"Authorization": f"Bearer {access_token}"}, timeout=10
+    )
+    st.session_state["_last_token_check"] = _time.time()
+    if test.status_code == 401 and st.session_state.get("refresh_token"):
+        try:
+            new_tokens = refresh_token_fn(st.session_state["refresh_token"])
+            st.session_state["access_token"]  = new_tokens["access_token"]
+            st.session_state["refresh_token"] = new_tokens.get("refresh_token", st.session_state["refresh_token"])
+            access_token = st.session_state["access_token"]
+            st.cache_data.clear()
+        except:
+            del st.session_state["access_token"]
+            st.rerun()
 
 # ── Carregar dados ─────────────────────────────────────────
 with st.spinner("Carregando seus anúncios..."):
@@ -470,21 +479,21 @@ c1, c2, c3 = st.columns(3)
 
 with c1:
     if st.button(
-        f"Total de anúncios\n{total}",
+        f"{total}\nTotal de anúncios",
         key="card_total", use_container_width=True
     ):
         toggle("total")
 
 with c2:
     if st.button(
-        f"Sem nenhuma venda\n{len(no_sales)}",
+        f"{len(no_sales)}\nSem nenhuma venda",
         key="card_nosales", use_container_width=True
     ):
         toggle("nosales")
 
 with c3:
     if st.button(
-        f"Com vendas\n{len(w_sales)}",
+        f"{len(w_sales)}\nCom vendas",
         key="card_wsales", use_container_width=True
     ):
         toggle("wsales")
@@ -494,21 +503,21 @@ c4, c5, c6 = st.columns(3)
 
 with c4:
     if st.button(
-        f"Ativos\n{len(active)}",
+        f"{len(active)}\nAtivos",
         key="card_active", use_container_width=True
     ):
         toggle("active")
 
 with c5:
     if st.button(
-        f"Pausados\n{len(paused)}",
+        f"{len(paused)}\nPausados",
         key="card_paused", use_container_width=True
     ):
         toggle("paused")
 
 with c6:
     if st.button(
-        f"Fechados\n{len(closed)}",
+        f"{len(closed)}\nFechados",
         key="card_closed", use_container_width=True
     ):
         toggle("closed")
