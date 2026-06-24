@@ -450,7 +450,7 @@ title, dados_view, default_sort = view_config.get(current_view, view_config["tod
 
 st.markdown(f"<div class='section-title'>{title} &nbsp;({len(dados_view)})</div>", unsafe_allow_html=True)
 
-# Controles: busca + ordenação (+ filtros extras por view)
+# Controles: busca + ordenação (+ filtro de status só para "todos")
 if current_view == "todos":
     c1, c2, c3 = st.columns([2, 3, 2])
     with c1:
@@ -467,42 +467,6 @@ if current_view == "todos":
     with c3:
         ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
                              label_visibility="collapsed", key="ord_todos")
-
-elif current_view == "sem_venda":
-    # Filtro de período exclusivo para anúncios sem venda
-    PERIODO_OPTS = {
-        "⏱️ Todos os períodos": 0,
-        "📅 Mais de 15 dias":   15,
-        "📅 Mais de 30 dias":   30,
-        "📅 Mais de 60 dias":   60,
-        "📅 Mais de 90 dias":   90,
-    }
-    c1, c2, c3 = st.columns([2, 3, 2])
-    with c1:
-        periodo_label = st.selectbox(
-            "Período sem venda", list(PERIODO_OPTS.keys()),
-            label_visibility="collapsed", key="filtro_periodo"
-        )
-        min_dias = PERIODO_OPTS[periodo_label]
-        if min_dias > 0:
-            dados_view = [l for l in dados_view if age_days(l.get("date_created","")) >= min_dias]
-    with c2:
-        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
-                              label_visibility="collapsed", key="busca_view")
-        if busca:
-            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
-    with c3:
-        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
-                             label_visibility="collapsed", key="ord_view")
-
-    # Resumo do filtro aplicado
-    if min_dias > 0:
-        st.markdown(
-            f"<div style='font-size:12px;color:#ffa726;padding:4px 0 8px'>"
-            f"🔎 Mostrando {len(dados_view)} anúncio(s) com mais de {min_dias} dias sem nenhuma venda.</div>",
-            unsafe_allow_html=True
-        )
-
 else:
     c1, c2 = st.columns([4, 1])
     with c1:
