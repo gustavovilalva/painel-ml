@@ -485,8 +485,6 @@ if "open_section" not in st.session_state:
 def toggle(name):
     st.session_state["open_section"] = name if st.session_state["open_section"] != name else None
 
-open_sec = st.session_state.get("open_section")
-
 # ── Linha 1 de cards ──────────────────────────────────────
 c1, c2, c3 = st.columns(3)
 
@@ -534,6 +532,9 @@ with c6:
         key="card_closed", use_container_width=True
     ):
         toggle("closed")
+
+# Lê o estado DEPOIS dos botões — captura o toggle do clique atual
+open_sec = st.session_state.get("open_section")
 
 # ── CSS dinâmico: destaca o card selecionado ──────────────
 if open_sec:
