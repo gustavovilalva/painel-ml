@@ -40,14 +40,19 @@ ul[data-testid="stSelectboxVirtualDropdown"] li:hover { background-color: #2a2a2
 ul[data-testid="stSelectboxVirtualDropdown"] li span { color: #e0e0e0 !important; }
 
 /* ── Botão Sair ── */
-[data-testid="stButton"] > button {
+.st-key-btn_sair button {
     background-color: #1e1e1e !important;
     color: #FFE600 !important;
     border: 1px solid #FFE600 !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
+    height: auto !important;
+    padding: 0.4rem 1rem !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
 }
-[data-testid="stButton"] > button:hover {
+.st-key-btn_sair button:hover {
     background-color: #FFE600 !important;
     color: #0d0d0d !important;
 }
@@ -99,75 +104,85 @@ a.ver:hover { color: #fff; }
 .btn-login:hover { background: #e6cf00; }
 
 /* ══════════════════════════════════════════════════════════
-   METRIC EXPANDERS — cards clicáveis com número em destaque
+   METRIC CARDS — blocos clicáveis em grid 3x2
    ══════════════════════════════════════════════════════════ */
 
-/* Container geral de cada expander */
-[data-testid="stExpander"] {
+/* Base: todos os card-buttons */
+.st-key-card_total button,
+.st-key-card_nosales button,
+.st-key-card_wsales button,
+.st-key-card_active button,
+.st-key-card_paused button,
+.st-key-card_closed button {
+    background-color: #1a1a1a !important;
     border: 1px solid #2e2e2e !important;
     border-radius: 14px !important;
-    margin-bottom: 10px !important;
-    background: #1a1a1a !important;
-    overflow: hidden;
-}
-
-/* Cabeçalho (summary) estilizado como metric card */
-[data-testid="stExpander"] > details > summary {
-    background: #1a1a1a !important;
-    padding: 0 !important;
-    cursor: pointer;
-    list-style: none;
-    display: flex !important;
-    align-items: stretch !important;
-    min-height: 78px;
-}
-[data-testid="stExpander"] > details > summary::-webkit-details-marker { display: none; }
-
-/* Conteúdo do summary renderizado pelo Streamlit */
-[data-testid="stExpander"] > details > summary > div {
-    flex: 1;
-    display: flex !important;
-    align-items: center !important;
+    height: 90px !important;
+    width: 100% !important;
     padding: 1rem 1.2rem !important;
-    gap: 0 !important;
-    width: 100%;
+    text-align: left !important;
+    white-space: pre-line !important;   /* permite \n no label */
+    line-height: 1.35 !important;
+    font-size: 13px !important;
+    color: #888 !important;
+    font-weight: 400 !important;
+    transition: border-color .15s, background .15s !important;
+    cursor: pointer !important;
+}
+.st-key-card_total button:hover,
+.st-key-card_nosales button:hover,
+.st-key-card_wsales button:hover,
+.st-key-card_active button:hover,
+.st-key-card_paused button:hover,
+.st-key-card_closed button:hover {
+    background-color: #222 !important;
+    border-color: #444 !important;
 }
 
-/* Texto interno do summary */
-[data-testid="stExpander"] > details > summary p {
-    font-size: 15px !important;
+/* Número grande — primeira linha do label */
+.st-key-card_total button p:first-child,
+.st-key-card_nosales button p:first-child,
+.st-key-card_wsales button p:first-child,
+.st-key-card_active button p:first-child,
+.st-key-card_paused button p:first-child,
+.st-key-card_closed button p:first-child {
+    font-size: 30px !important;
     font-weight: 700 !important;
-    color: #f0f0f0 !important;
-    margin: 0 !important;
-    line-height: 1.3 !important;
-    flex: 1;
+    line-height: 1.1 !important;
 }
 
-/* Seta do expander */
-[data-testid="stExpander"] > details > summary svg {
-    fill: #FFE600 !important;
-    flex-shrink: 0;
-    margin-left: 8px;
-}
+/* Cores dos números por categoria */
+.st-key-card_total   button { color: #888 !important; }
+.st-key-card_nosales button { color: #888 !important; }
+.st-key-card_wsales  button { color: #888 !important; }
+.st-key-card_active  button { color: #888 !important; }
+.st-key-card_paused  button { color: #888 !important; }
+.st-key-card_closed  button { color: #888 !important; }
 
-/* Hover no summary */
-[data-testid="stExpander"] > details > summary:hover {
-    background: #222 !important;
-}
+/* Card SELECIONADO — borda destacada */
+.st-key-card_total.selected-card button   { border-color: #FFE600 !important; background: #1e1c00 !important; }
+.st-key-card_nosales.selected-card button { border-color: #ef5350 !important; background: #1e0808 !important; }
+.st-key-card_wsales.selected-card button  { border-color: #66bb6a !important; background: #081e08 !important; }
+.st-key-card_active.selected-card button  { border-color: #66bb6a !important; background: #081e08 !important; }
+.st-key-card_paused.selected-card button  { border-color: #ffa726 !important; background: #1e1200 !important; }
+.st-key-card_closed.selected-card button  { border-color: #ef5350 !important; background: #1e0808 !important; }
 
-/* Summary quando aberto — borda inferior + texto amarelo */
-[data-testid="stExpander"] > details[open] > summary {
-    border-bottom: 1px solid #2e2e2e !important;
-    background: #1a1a1a !important;
+/* Painel de tabela abaixo do grid */
+.table-panel {
+    background: #1a1a1a;
+    border: 1px solid #2e2e2e;
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    margin-top: 4px;
 }
-[data-testid="stExpander"] > details[open] > summary p {
-    color: #FFE600 !important;
-}
-
-/* Conteúdo interno do expander */
-[data-testid="stExpander"] > details > div {
-    background: #1a1a1a !important;
-    padding: 1rem 1.2rem !important;
+.panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -386,15 +401,13 @@ with col_a:
         unsafe_allow_html=True
     )
 with col_b:
-    if st.button("🚪 Sair"):
+    if st.button("🚪 Sair", key="btn_sair"):
         for k in ["access_token", "refresh_token"]:
             st.session_state.pop(k, None)
         st.cache_data.clear()
         st.rerun()
 
-# ══════════════════════════════════════════════════════════
-# ── Gráficos (fixados no topo, acima dos cards) ────────────
-# ══════════════════════════════════════════════════════════
+# ── Gráficos (topo) ─────────────────────────────────────────
 age_bins = [0, 0, 0, 0]
 for l in listings:
     d = age_days(l.get("date_created", ""))
@@ -408,11 +421,11 @@ st.components.v1.html(f"""
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0.5rem">
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Status dos anúncios</div>
-    <canvas id="cStatus" role="img" aria-label="Status" style="max-height:200px"></canvas>
+    <canvas id="cStatus" style="max-height:200px"></canvas>
   </div>
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Anúncios por idade</div>
-    <canvas id="cAge" role="img" aria-label="Idade" style="max-height:200px"></canvas>
+    <canvas id="cAge" style="max-height:200px"></canvas>
   </div>
 </div>
 </div>
@@ -440,78 +453,160 @@ new Chart(document.getElementById('cAge'), {{
 """, height=290)
 
 # ══════════════════════════════════════════════════════════
-# ── Cards expansíveis (métricas + listagens) ───────────────
+# ── Grid de cards (3 × 2) + tabela abaixo ─────────────────
 # ══════════════════════════════════════════════════════════
 
-# Helper: cabeçalho HTML dentro do card (número grande + label)
-def metric_header(icon, color, count, label):
-    return st.markdown(f"""
-    <div style="display:flex;align-items:center;gap:16px;padding:0.2rem 0 0.8rem 0;
-                border-bottom:1px solid #2e2e2e;margin-bottom:1rem">
-      <div style="font-size:40px;font-weight:800;color:{color};line-height:1">{count}</div>
-      <div>
-        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">{label}</div>
-        <div style="font-size:12px;color:#555">{icon} anúncios</div>
-      </div>
-    </div>
+# Estado: qual seção está aberta
+if "open_section" not in st.session_state:
+    st.session_state["open_section"] = None
+
+def toggle(name):
+    st.session_state["open_section"] = name if st.session_state["open_section"] != name else None
+
+open_sec = st.session_state.get("open_section")
+
+# ── Linha 1 de cards ──────────────────────────────────────
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    if st.button(
+        f"Total de anúncios\n{total}",
+        key="card_total", use_container_width=True
+    ):
+        toggle("total")
+
+with c2:
+    if st.button(
+        f"Sem nenhuma venda\n{len(no_sales)}",
+        key="card_nosales", use_container_width=True
+    ):
+        toggle("nosales")
+
+with c3:
+    if st.button(
+        f"Com vendas\n{len(w_sales)}",
+        key="card_wsales", use_container_width=True
+    ):
+        toggle("wsales")
+
+# ── Linha 2 de cards ──────────────────────────────────────
+c4, c5, c6 = st.columns(3)
+
+with c4:
+    if st.button(
+        f"Ativos\n{len(active)}",
+        key="card_active", use_container_width=True
+    ):
+        toggle("active")
+
+with c5:
+    if st.button(
+        f"Pausados\n{len(paused)}",
+        key="card_paused", use_container_width=True
+    ):
+        toggle("paused")
+
+with c6:
+    if st.button(
+        f"Fechados\n{len(closed)}",
+        key="card_closed", use_container_width=True
+    ):
+        toggle("closed")
+
+# ── CSS dinâmico: destaca o card selecionado ──────────────
+if open_sec:
+    key_map = {
+        "total":   ("card_total",   "#FFE600", "#1e1c00"),
+        "nosales": ("card_nosales", "#ef5350", "#1e0808"),
+        "wsales":  ("card_wsales",  "#66bb6a", "#081e08"),
+        "active":  ("card_active",  "#66bb6a", "#081e08"),
+        "paused":  ("card_paused",  "#ffa726", "#1e1200"),
+        "closed":  ("card_closed",  "#ef5350", "#1e0808"),
+    }
+    css_key, bdr_color, bg_color = key_map[open_sec]
+    st.markdown(f"""
+    <style>
+    .st-key-{css_key} button {{
+        border-color: {bdr_color} !important;
+        background-color: {bg_color} !important;
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
-# ── Card 1: Total ──────────────────────────────────────────
-with st.expander(f"📋  Total de anúncios  ·  {total}", expanded=False):
-    metric_header("📋", "#FFE600", total, "Total de anúncios")
-    col1, col2, col3 = st.columns([2, 3, 2])
-    with col1:
-        filtro = st.selectbox(
-            "Status", ["Todos", "Ativos", "Pausados", "Fechados"],
-            label_visibility="collapsed", key="filtro_todos"
-        )
-    with col2:
-        busca = st.text_input(
-            "Buscar", placeholder="🔍  Buscar por título...",
-            label_visibility="collapsed", key="busca_todos"
-        )
-    with col3:
-        ordem = st.selectbox(
-            "Ordenar", SORT_OPTIONS,
-            key="ord_todos", label_visibility="collapsed"
-        )
-    dados = listings
-    if filtro == "Ativos":     dados = active
-    elif filtro == "Pausados": dados = paused
-    elif filtro == "Fechados": dados = closed
-    if busca:
-        dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
-    render_table(sort_data(dados, ordem))
+# ── Painel da tabela (largura total) ──────────────────────
+PANEL_TITLES = {
+    "total":   ("📋", "Total de anúncios"),
+    "nosales": ("🔴", "Sem nenhuma venda"),
+    "wsales":  ("🟢", "Com vendas"),
+    "active":  ("✅", "Ativos"),
+    "paused":  ("⏸️", "Pausados"),
+    "closed":  ("🚫", "Fechados"),
+}
 
-# ── Card 2: Sem nenhuma venda ──────────────────────────────
-with st.expander(f"🔴  Sem nenhuma venda  ·  {len(no_sales)}", expanded=False):
-    metric_header("🔴", "#ef5350", len(no_sales), "Sem nenhuma venda")
-    ord_ns = section_sort("ord_nosales", default_index=2)
-    render_table(sort_data(no_sales, ord_ns))
+if open_sec:
+    icon, title = PANEL_TITLES[open_sec]
 
-# ── Card 3: Com vendas ─────────────────────────────────────
-with st.expander(f"🟢  Com vendas  ·  {len(w_sales)}", expanded=False):
-    metric_header("🟢", "#66bb6a", len(w_sales), "Com vendas")
-    ord_ws = section_sort("ord_wsales", default_index=0)
-    render_table(sort_data(w_sales, ord_ws))
+    st.markdown(f"""
+    <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;
+                padding:1.2rem 1.4rem;margin-top:4px">
+      <div style="font-size:15px;font-weight:700;color:#f0f0f0;
+                  margin-bottom:1rem;display:flex;align-items:center;gap:8px">
+        <span>{icon}</span> {title}
+      </div>
+    """, unsafe_allow_html=True)
 
-# ── Card 4: Ativos ─────────────────────────────────────────
-with st.expander(f"✅  Ativos  ·  {len(active)}", expanded=False):
-    metric_header("✅", "#66bb6a", len(active), "Ativos")
-    ord_act = section_sort("ord_active", default_index=0)
-    render_table(sort_data(active, ord_act))
+    # Filtro extra para "Total"
+    if open_sec == "total":
+        f1, f2, f3 = st.columns([2, 3, 2])
+        with f1:
+            filtro = st.selectbox(
+                "Status", ["Todos", "Ativos", "Pausados", "Fechados"],
+                label_visibility="collapsed", key="filtro_todos"
+            )
+        with f2:
+            busca = st.text_input(
+                "Buscar", placeholder="🔍  Buscar por título...",
+                label_visibility="collapsed", key="busca_todos"
+            )
+        with f3:
+            ordem = st.selectbox(
+                "Ordenar", SORT_OPTIONS,
+                key="ord_todos", label_visibility="collapsed"
+            )
+        dados = listings
+        if filtro == "Ativos":     dados = active
+        elif filtro == "Pausados": dados = paused
+        elif filtro == "Fechados": dados = closed
+        if busca:
+            dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
+        render_table(sort_data(dados, ordem))
 
-# ── Card 5: Pausados ───────────────────────────────────────
-with st.expander(f"⏸️  Pausados  ·  {len(paused)}", expanded=False):
-    metric_header("⏸️", "#ffa726", len(paused), "Pausados")
-    ord_pau = section_sort("ord_paused", default_index=0)
-    render_table(sort_data(paused, ord_pau))
+    else:
+        sort_map = {
+            "nosales": ("ord_nosales", 2),
+            "wsales":  ("ord_wsales",  0),
+            "active":  ("ord_active",  0),
+            "paused":  ("ord_paused",  0),
+            "closed":  ("ord_closed",  1),
+        }
+        sort_key, sort_def = sort_map[open_sec]
+        data_map = {
+            "nosales": no_sales,
+            "wsales":  w_sales,
+            "active":  active,
+            "paused":  paused,
+            "closed":  closed,
+        }
+        _, col_sort = st.columns([4, 1])
+        with col_sort:
+            ordem = st.selectbox(
+                "Ordenar por", SORT_OPTIONS,
+                index=sort_def, key=sort_key,
+                label_visibility="collapsed"
+            )
+        render_table(sort_data(data_map[open_sec], ordem))
 
-# ── Card 6: Fechados ───────────────────────────────────────
-with st.expander(f"🚫  Fechados  ·  {len(closed)}", expanded=False):
-    metric_header("🚫", "#ef5350", len(closed), "Fechados")
-    ord_clo = section_sort("ord_closed", default_index=1)
-    render_table(sort_data(closed, ord_clo))
+    st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
     f"<div style='text-align:center;font-size:12px;color:#444;padding:1.5rem'>Painel ML · {now_str}</div>",
