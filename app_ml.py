@@ -37,7 +37,17 @@ ul[data-testid="stSelectboxVirtualDropdown"] {
     border: 1px solid #333 !important;
 }
 ul[data-testid="stSelectboxVirtualDropdown"] li:hover { background-color: #2a2a2a !important; }
-ul[data-testid="stSelectboxVirtualDropdown"] li span { color: #e0e0e0 !important; }
+ul[data-testid="stSelectboxVirtualDropdown"] li span { color: #ffffff !important; }
+ul[data-testid="stSelectboxVirtualDropdown"] li { color: #ffffff !important; }
+/* Texto selecionado e placeholder dentro do selectbox */
+[data-testid="stSelectbox"] span,
+[data-testid="stSelectbox"] div[class*="placeholder"],
+[data-testid="stSelectbox"] div[class*="singleValue"] { color: #ffffff !important; }
+/* Opções do dropdown — texto branco em todos os estados */
+div[data-baseweb="select"] li,
+div[data-baseweb="select"] li span,
+div[data-baseweb="menu"] li span,
+div[data-baseweb="menu"] span { color: #ffffff !important; }
 
 /* ── Botão Sair ── */
 .st-key-btn_sair button {
