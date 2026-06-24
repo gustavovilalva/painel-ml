@@ -515,7 +515,14 @@ st.components.v1.html(f"""
 Chart.defaults.color = '#888';
 new Chart(document.getElementById('cStatus'), {{
   type: 'doughnut',
-  data: {{ labels: ['Ativos','Pausados','Fechados'], datasets: [{{ data: [{len(active)},{len(paused)},{len(closed)}], backgroundColor: ['#66bb6a','#ffa726','#ef5350'], borderWidth: 0 }}] }},
+  data: {{
+    labels: ['Ativos c/ vendas','Sem nenhuma venda','Pausados','Fechados'],
+    datasets: [{{
+      data: [{len(active) - len([l for l in no_sales if l.get('status')=='active'])},{len([l for l in no_sales if l.get('status')=='active'])},{len(paused)},{len(closed)}],
+      backgroundColor: ['#66bb6a','#ef5350','#ffa726','#b71c1c'],
+      borderWidth: 0
+    }}]
+  }},
   options: {{ responsive: true, maintainAspectRatio: true, plugins: {{ legend: {{ position: 'right', labels: {{ color:'#bbb', font: {{ size: 12 }}, boxWidth: 12 }} }} }} }}
 }});
 new Chart(document.getElementById('cAge'), {{
