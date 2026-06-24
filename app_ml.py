@@ -184,6 +184,49 @@ a.ver:hover { color: #fff; }
 .st-key-card_paused.selected-card button  { border-color: #ffa726 !important; background: #1e1200 !important; }
 .st-key-card_closed.selected-card button  { border-color: #ef5350 !important; background: #1e0808 !important; }
 
+/* ── Mini-cards de faixa etária (dentro de Sem vendas) ── */
+.st-key-ns_all button,
+.st-key-ns_15 button,
+.st-key-ns_30 button,
+.st-key-ns_60 button,
+.st-key-ns_60p button {
+    background-color: #111 !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 10px !important;
+    height: 68px !important;
+    width: 100% !important;
+    padding: 0.6rem 1rem !important;
+    text-align: left !important;
+    white-space: pre-line !important;
+    line-height: 1.45 !important;
+    font-size: 10px !important;
+    color: #FFE600 !important;
+    font-weight: 600 !important;
+    transition: border-color .15s, background .15s !important;
+    cursor: pointer !important;
+}
+.st-key-ns_all button:hover,
+.st-key-ns_15 button:hover,
+.st-key-ns_30 button:hover,
+.st-key-ns_60 button:hover,
+.st-key-ns_60p button:hover {
+    border-color: #FFE600 !important;
+    background-color: #1a1800 !important;
+}
+.st-key-ns_all button p::first-line,
+.st-key-ns_15 button p::first-line,
+.st-key-ns_30 button p::first-line,
+.st-key-ns_60 button p::first-line,
+.st-key-ns_60p button p::first-line {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+}
+.st-key-ns_all button p,
+.st-key-ns_15 button p,
+.st-key-ns_30 button p,
+.st-key-ns_60 button p,
+.st-key-ns_60p button p { text-align: left !important; }
+
 /* Painel de tabela abaixo do grid */
 .table-panel {
     background: #1a1a1a;
@@ -413,6 +456,12 @@ paused   = [l for l in listings if l.get("status") == "paused"]
 closed   = [l for l in listings if l.get("status") == "closed"]
 now_str  = datetime.now().strftime("%d/%m/%Y %H:%M")
 
+# ── Sub-faixas: sem vendas por idade do anúncio ────────────
+ns_15  = [l for l in no_sales if age_days(l.get("date_created","")) <= 15]
+ns_30  = [l for l in no_sales if 16 <= age_days(l.get("date_created","")) <= 30]
+ns_60  = [l for l in no_sales if 31 <= age_days(l.get("date_created","")) <= 60]
+ns_60p = [l for l in no_sales if age_days(l.get("date_created","")) > 60]
+
 # ── Barra de usuário + botão sair ──────────────────────────
 col_a, col_b = st.columns([6, 1])
 with col_a:
@@ -481,6 +530,8 @@ new Chart(document.getElementById('cAge'), {{
 # Estado: qual seção está aberta
 if "open_section" not in st.session_state:
     st.session_state["open_section"] = None
+if "nosales_filter" not in st.session_state:
+    st.session_state["nosales_filter"] = "all"
 
 def toggle(name):
     st.session_state["open_section"] = name if st.session_state["open_section"] != name else None
@@ -604,9 +655,57 @@ if open_sec:
             dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
         render_table(sort_data(dados, ordem))
 
+    elif open_sec == "nosales":
+        # ── Mini-cards de faixa etária ────────────────────
+        nf = st.session_state["nosales_filter"]
+
+        mc1, mc2, mc3, mc4, mc5 = st.columns(5)
+        with mc1:
+            if st.button(f"{len(no_sales)}\nTodos", key="ns_all", use_container_width=True):
+                st.session_state["nosales_filter"] = "all"
+                nf = "all"
+        with mc2:
+            if st.button(f"{len(ns_15)}\n≤ 15 dias", key="ns_15", use_container_width=True):
+                st.session_state["nosales_filter"] = "15"
+                nf = "15"
+        with mc3:
+            if st.button(f"{len(ns_30)}\n16 – 30 dias", key="ns_30", use_container_width=True):
+                st.session_state["nosales_filter"] = "30"
+                nf = "30"
+        with mc4:
+            if st.button(f"{len(ns_60)}\n31 – 60 dias", key="ns_60", use_container_width=True):
+                st.session_state["nosales_filter"] = "60"
+                nf = "60"
+        with mc5:
+            if st.button(f"{len(ns_60p)}\n> 60 dias", key="ns_60p", use_container_width=True):
+                st.session_state["nosales_filter"] = "60p"
+                nf = "60p"
+
+        # Lê o filtro atualizado depois dos botões
+        nf = st.session_state["nosales_filter"]
+
+        # Destaca mini-card selecionado
+        selected_ns_key = {"all":"ns_all","15":"ns_15","30":"ns_30","60":"ns_60","60p":"ns_60p"}.get(nf,"ns_all")
+        st.markdown(f"""
+        <style>
+        .st-key-{selected_ns_key} button {{
+            border-color: #FFE600 !important;
+            background-color: #1e1c00 !important;
+        }}
+        </style>""", unsafe_allow_html=True)
+
+        # Dados filtrados
+        ns_data_map = {"all": no_sales, "15": ns_15, "30": ns_30, "60": ns_60, "60p": ns_60p}
+        dados_ns = ns_data_map.get(nf, no_sales)
+
+        _, col_sort = st.columns([4, 1])
+        with col_sort:
+            ordem = st.selectbox("Ordenar por", SORT_OPTIONS, index=2,
+                                 key="ord_nosales", label_visibility="collapsed")
+        render_table(sort_data(dados_ns, ordem))
+
     else:
         sort_map = {
-            "nosales": ("ord_nosales", 2),
             "wsales":  ("ord_wsales",  0),
             "active":  ("ord_active",  0),
             "paused":  ("ord_paused",  0),
@@ -614,7 +713,6 @@ if open_sec:
         }
         sort_key, sort_def = sort_map[open_sec]
         data_map = {
-            "nosales": no_sales,
             "wsales":  w_sales,
             "active":  active,
             "paused":  paused,
