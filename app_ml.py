@@ -19,7 +19,7 @@ st.markdown("""
 header[data-testid="stHeader"] { display: none; }
 section[data-testid="stSidebar"] { display: none; }
 
-/* ── Textos nativos do Streamlit ── */
+/* ── Textos nativos ── */
 .stApp p, .stApp label, .stApp span, .stApp div { color: #e0e0e0; }
 
 /* ── Selectbox e inputs ── */
@@ -52,24 +52,8 @@ ul[data-testid="stSelectboxVirtualDropdown"] li span { color: #e0e0e0 !important
     color: #0d0d0d !important;
 }
 
-/* ── Spinner e mensagens ── */
-[data-testid="stStatusWidget"] { color: #FFE600 !important; }
+/* ── Mensagens ── */
 .stSuccess { background-color: #0f2a0f !important; color: #4caf50 !important; border: 1px solid #2e7d32 !important; }
-
-/* ── Métricas ── */
-.metric-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 1.5rem 0; }
-.metric-card {
-    background: #1a1a1a;
-    border-radius: 12px;
-    padding: 1.1rem 1rem;
-    border: 1px solid #2e2e2e;
-}
-.metric-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-.metric-value { font-size: 30px; font-weight: 700; }
-.v-blue   { color: #FFE600; }
-.v-red    { color: #ef5350; }
-.v-green  { color: #66bb6a; }
-.v-yellow { color: #ffa726; }
 
 /* ── Tabela ── */
 .ml-table {
@@ -113,28 +97,14 @@ a.ver:hover { color: #fff; }
 }
 .btn-login:hover { background: #e6cf00; }
 
-/* ── Expanders ── */
-[data-testid="stExpander"] {
-    border: 1px solid #2e2e2e !important;
-    border-radius: 12px !important;
-    margin-bottom: 10px !important;
-    background: #1a1a1a !important;
-    overflow: hidden;
+/* ── Título da seção ── */
+.section-title {
+    font-size: 17px; font-weight: 700; color: #f0f0f0;
+    padding: 1rem 0 0.5rem;
+    border-bottom: 2px solid #FFE600;
+    margin-bottom: 1rem;
+    display: inline-block;
 }
-[data-testid="stExpander"] > details > summary {
-    font-weight: 700 !important;
-    font-size: 15px !important;
-    padding: 0.85rem 1rem !important;
-    color: #f0f0f0 !important;
-    background: #1a1a1a !important;
-}
-[data-testid="stExpander"] > details > summary:hover { background: #222 !important; }
-[data-testid="stExpander"] > details[open] > summary {
-    border-bottom: 1px solid #2e2e2e;
-    color: #FFE600 !important;
-}
-[data-testid="stExpander"] > details > summary svg { fill: #FFE600 !important; }
-[data-testid="stExpander"] > details > div { background: #1a1a1a !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -263,11 +233,6 @@ def render_table(data):
     </table><br>
     """, unsafe_allow_html=True)
 
-def section_sort(key, default_index=0):
-    _, col_sort = st.columns([4, 1])
-    with col_sort:
-        return st.selectbox("Ordenar por", SORT_OPTIONS, index=default_index, key=key, label_visibility="collapsed")
-
 # ── Header ─────────────────────────────────────────────────
 st.markdown("""
 <div style='background:#FFE600;padding:0.85rem 1.5rem;display:flex;align-items:center;gap:12px'>
@@ -342,6 +307,9 @@ paused   = [l for l in listings if l.get("status") == "paused"]
 closed   = [l for l in listings if l.get("status") == "closed"]
 now_str  = datetime.now().strftime("%d/%m/%Y %H:%M")
 
+# View selecionada via query param (definida pelos cards clicáveis)
+current_view = st.query_params.get("view", "todos")
+
 # Barra de usuário + botão sair
 col_a, col_b = st.columns([6, 1])
 with col_a:
@@ -356,19 +324,68 @@ with col_b:
         for k in ["access_token", "refresh_token"]:
             st.session_state.pop(k, None)
         st.cache_data.clear()
+        st.query_params.clear()
         st.rerun()
 
-# ── Métricas ───────────────────────────────────────────────
-st.markdown(f"""
-<div class="metric-grid">
-  <div class="metric-card"><div class="metric-label">Total de anúncios</div><div class="metric-value v-blue">{total}</div></div>
-  <div class="metric-card"><div class="metric-label">Sem nenhuma venda</div><div class="metric-value v-red">{len(no_sales)}</div></div>
-  <div class="metric-card"><div class="metric-label">Com vendas</div><div class="metric-value v-green">{len(w_sales)}</div></div>
-  <div class="metric-card"><div class="metric-label">Ativos</div><div class="metric-value v-green">{len(active)}</div></div>
-  <div class="metric-card"><div class="metric-label">Pausados</div><div class="metric-value v-yellow">{len(paused)}</div></div>
-  <div class="metric-card"><div class="metric-label">Fechados</div><div class="metric-value v-red">{len(closed)}</div></div>
+# ── Cards clicáveis de métricas ────────────────────────────
+def card_style(view_key):
+    if current_view == view_key:
+        return "background:#1e1c00;border:2px solid #FFE600;border-radius:12px;padding:1.1rem 1rem;cursor:pointer;transition:all 0.15s;user-select:none;"
+    return "background:#1a1a1a;border:1px solid #2e2e2e;border-radius:12px;padding:1.1rem 1rem;cursor:pointer;transition:all 0.15s;user-select:none;"
+
+st.components.v1.html(f"""
+<style>
+  body {{ margin:0; padding:0; background:#0d0d0d; }}
+  .mgrid {{ display:grid; grid-template-columns:repeat(6,1fr); gap:12px; padding:12px 0 4px 0; }}
+  .mcard {{ border-radius:12px; padding:1.1rem 1rem; cursor:pointer; transition:all 0.15s; user-select:none; }}
+  .mcard:hover {{ filter:brightness(1.15); }}
+  .mlabel {{ font-size:12px; color:#888; margin-bottom:6px; font-family:sans-serif; }}
+  .mvalue {{ font-size:30px; font-weight:700; font-family:sans-serif; }}
+  .c-yellow {{ color:#FFE600; }}
+  .c-red    {{ color:#ef5350; }}
+  .c-green  {{ color:#66bb6a; }}
+  .c-orange {{ color:#ffa726; }}
+  .inactive {{ background:#1a1a1a; border:1px solid #2e2e2e; }}
+  .active   {{ background:#1e1c00; border:2px solid #FFE600; }}
+</style>
+<div class="mgrid">
+  <div class="mcard {'active' if current_view == 'todos' else 'inactive'}" onclick="setView('todos')">
+    <div class="mlabel">Total de anúncios</div>
+    <div class="mvalue c-yellow">{total}</div>
+  </div>
+  <div class="mcard {'active' if current_view == 'sem_venda' else 'inactive'}" onclick="setView('sem_venda')">
+    <div class="mlabel">Sem nenhuma venda</div>
+    <div class="mvalue c-red">{len(no_sales)}</div>
+  </div>
+  <div class="mcard {'active' if current_view == 'com_venda' else 'inactive'}" onclick="setView('com_venda')">
+    <div class="mlabel">Com vendas</div>
+    <div class="mvalue c-green">{len(w_sales)}</div>
+  </div>
+  <div class="mcard {'active' if current_view == 'ativos' else 'inactive'}" onclick="setView('ativos')">
+    <div class="mlabel">Ativos</div>
+    <div class="mvalue c-green">{len(active)}</div>
+  </div>
+  <div class="mcard {'active' if current_view == 'pausados' else 'inactive'}" onclick="setView('pausados')">
+    <div class="mlabel">Pausados</div>
+    <div class="mvalue c-orange">{len(paused)}</div>
+  </div>
+  <div class="mcard {'active' if current_view == 'fechados' else 'inactive'}" onclick="setView('fechados')">
+    <div class="mlabel">Fechados</div>
+    <div class="mvalue c-red">{len(closed)}</div>
+  </div>
 </div>
-""", unsafe_allow_html=True)
+<script>
+function setView(v) {{
+  try {{
+    var url = new URL(window.parent.location.href);
+    url.searchParams.set('view', v);
+    window.parent.location.href = url.toString();
+  }} catch(e) {{
+    window.location.search = '?view=' + v;
+  }}
+}}
+</script>
+""", height=130)
 
 # ── Gráficos ───────────────────────────────────────────────
 age_bins = [0, 0, 0, 0]
@@ -381,14 +398,14 @@ for l in listings:
 
 st.components.v1.html(f"""
 <div style="background:#0d0d0d;padding:4px 0 8px 0">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Status dos anúncios</div>
-    <canvas id="cStatus" role="img" aria-label="Status" style="max-height:200px"></canvas>
+    <canvas id="cStatus" style="max-height:190px"></canvas>
   </div>
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Anúncios por idade</div>
-    <canvas id="cAge" role="img" aria-label="Idade" style="max-height:200px"></canvas>
+    <canvas id="cAge" style="max-height:190px"></canvas>
   </div>
 </div>
 </div>
@@ -397,70 +414,107 @@ st.components.v1.html(f"""
 Chart.defaults.color = '#888';
 new Chart(document.getElementById('cStatus'), {{
   type: 'doughnut',
-  data: {{ labels: ['Ativos','Pausados','Fechados'], datasets: [{{ data: [{len(active)},{len(paused)},{len(closed)}], backgroundColor: ['#66bb6a','#ffa726','#ef5350'], borderWidth: 0 }}] }},
-  options: {{ responsive: true, maintainAspectRatio: true, plugins: {{ legend: {{ position: 'right', labels: {{ color:'#bbb', font: {{ size: 12 }}, boxWidth: 12 }} }} }} }}
+  data: {{ labels: ['Ativos','Pausados','Fechados'],
+    datasets: [{{ data: [{len(active)},{len(paused)},{len(closed)}],
+      backgroundColor: ['#66bb6a','#ffa726','#ef5350'], borderWidth: 0 }}] }},
+  options: {{ responsive: true, maintainAspectRatio: true,
+    plugins: {{ legend: {{ position: 'right', labels: {{ color:'#bbb', font:{{size:12}}, boxWidth:12 }} }} }} }}
 }});
 new Chart(document.getElementById('cAge'), {{
   type: 'bar',
-  data: {{ labels: ['< 1 mês','1-6 meses','6-12 meses','> 1 ano'], datasets: [{{ data: {age_bins}, backgroundColor: ['#FFE600','#c9b800','#9e8f00','#6e6300'], borderRadius: 6 }}] }},
-  options: {{
-    responsive: true, maintainAspectRatio: true,
+  data: {{ labels: ['< 1 mês','1-6 meses','6-12 meses','> 1 ano'],
+    datasets: [{{ data: {age_bins},
+      backgroundColor: ['#FFE600','#c9b800','#9e8f00','#6e6300'], borderRadius: 6 }}] }},
+  options: {{ responsive: true, maintainAspectRatio: true,
     plugins: {{ legend: {{ display: false }} }},
     scales: {{
-      y: {{ beginAtZero: true, ticks: {{ stepSize: 1, font: {{ size: 11 }}, color:'#888' }}, grid: {{ color:'#222' }} }},
-      x: {{ ticks: {{ font: {{ size: 11 }}, color:'#888' }}, grid: {{ color:'#222' }} }}
+      y: {{ beginAtZero:true, ticks:{{stepSize:1,font:{{size:11}},color:'#888'}}, grid:{{color:'#222'}} }},
+      x: {{ ticks:{{font:{{size:11}},color:'#888'}}, grid:{{color:'#222'}} }}
     }}
   }}
 }});
 </script>
-""", height=290)
+""", height=275)
 
-# ── Seções colapsáveis ─────────────────────────────────────
+# ── Tabela da view selecionada ─────────────────────────────
+view_config = {
+    "todos":     ("📋 Todos os anúncios",       listings,  0),
+    "sem_venda": ("🔴 Sem nenhuma venda",        no_sales,  2),
+    "com_venda": ("🟢 Com vendas",               w_sales,   0),
+    "ativos":    ("✅ Ativos",                   active,    0),
+    "pausados":  ("⏸️ Pausados",                paused,    0),
+    "fechados":  ("🚫 Fechados",                 closed,    1),
+}
 
-with st.expander(f"🔴  Sem nenhuma venda  —  {len(no_sales)} anúncios", expanded=True):
-    ord_ns = section_sort("ord_nosales", default_index=2)
-    render_table(sort_data(no_sales, ord_ns))
+title, dados_view, default_sort = view_config.get(current_view, view_config["todos"])
 
-with st.expander(f"🟢  Com vendas  —  {len(w_sales)} anúncios", expanded=False):
-    ord_ws = section_sort("ord_wsales", default_index=0)
-    render_table(sort_data(w_sales, ord_ws))
+st.markdown(f"<div class='section-title'>{title} &nbsp;({len(dados_view)})</div>", unsafe_allow_html=True)
 
-with st.expander(f"✅  Ativos  —  {len(active)} anúncios", expanded=False):
-    ord_act = section_sort("ord_active", default_index=0)
-    render_table(sort_data(active, ord_act))
+# Controles: busca + ordenação (+ filtros extras por view)
+if current_view == "todos":
+    c1, c2, c3 = st.columns([2, 3, 2])
+    with c1:
+        filtro = st.selectbox("Status", ["Todos", "Ativos", "Pausados", "Fechados"],
+                              label_visibility="collapsed", key="filtro_status")
+        if filtro == "Ativos":     dados_view = active
+        elif filtro == "Pausados": dados_view = paused
+        elif filtro == "Fechados": dados_view = closed
+    with c2:
+        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
+                              label_visibility="collapsed", key="busca_todos")
+        if busca:
+            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
+    with c3:
+        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
+                             label_visibility="collapsed", key="ord_todos")
 
-with st.expander(f"⏸️  Pausados  —  {len(paused)} anúncios", expanded=False):
-    ord_pau = section_sort("ord_paused", default_index=0)
-    render_table(sort_data(paused, ord_pau))
-
-with st.expander(f"🚫  Fechados  —  {len(closed)} anúncios", expanded=False):
-    ord_clo = section_sort("ord_closed", default_index=1)
-    render_table(sort_data(closed, ord_clo))
-
-with st.expander(f"📋  Todos os anúncios  —  {total} anúncios", expanded=False):
-    col1, col2, col3 = st.columns([2, 3, 2])
-    with col1:
-        filtro = st.selectbox(
-            "Status", ["Todos", "Ativos", "Pausados", "Fechados"],
-            label_visibility="collapsed", key="filtro_todos"
+elif current_view == "sem_venda":
+    # Filtro de período exclusivo para anúncios sem venda
+    PERIODO_OPTS = {
+        "⏱️ Todos os períodos": 0,
+        "📅 Mais de 15 dias":   15,
+        "📅 Mais de 30 dias":   30,
+        "📅 Mais de 60 dias":   60,
+        "📅 Mais de 90 dias":   90,
+    }
+    c1, c2, c3 = st.columns([2, 3, 2])
+    with c1:
+        periodo_label = st.selectbox(
+            "Período sem venda", list(PERIODO_OPTS.keys()),
+            label_visibility="collapsed", key="filtro_periodo"
         )
-    with col2:
-        busca = st.text_input(
-            "Buscar", placeholder="🔍  Buscar por título...",
-            label_visibility="collapsed", key="busca_todos"
+        min_dias = PERIODO_OPTS[periodo_label]
+        if min_dias > 0:
+            dados_view = [l for l in dados_view if age_days(l.get("date_created","")) >= min_dias]
+    with c2:
+        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
+                              label_visibility="collapsed", key="busca_view")
+        if busca:
+            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
+    with c3:
+        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
+                             label_visibility="collapsed", key="ord_view")
+
+    # Resumo do filtro aplicado
+    if min_dias > 0:
+        st.markdown(
+            f"<div style='font-size:12px;color:#ffa726;padding:4px 0 8px'>"
+            f"🔎 Mostrando {len(dados_view)} anúncio(s) com mais de {min_dias} dias sem nenhuma venda.</div>",
+            unsafe_allow_html=True
         )
-    with col3:
-        ordem = st.selectbox(
-            "Ordenar", SORT_OPTIONS,
-            key="ord_todos", label_visibility="collapsed"
-        )
-    dados = listings
-    if filtro == "Ativos":     dados = active
-    elif filtro == "Pausados": dados = paused
-    elif filtro == "Fechados": dados = closed
-    if busca:
-        dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
-    render_table(sort_data(dados, ordem))
+
+else:
+    c1, c2 = st.columns([4, 1])
+    with c1:
+        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
+                              label_visibility="collapsed", key="busca_view")
+        if busca:
+            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
+    with c2:
+        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
+                             label_visibility="collapsed", key="ord_view")
+
+render_table(sort_data(dados_view, ordem))
 
 st.markdown(
     f"<div style='text-align:center;font-size:12px;color:#444;padding:1.5rem'>Painel ML · {now_str}</div>",
