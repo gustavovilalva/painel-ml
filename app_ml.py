@@ -56,21 +56,6 @@ ul[data-testid="stSelectboxVirtualDropdown"] li span { color: #e0e0e0 !important
 [data-testid="stStatusWidget"] { color: #FFE600 !important; }
 .stSuccess { background-color: #0f2a0f !important; color: #4caf50 !important; border: 1px solid #2e7d32 !important; }
 
-/* ── Métricas ── */
-.metric-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 1.5rem 0; }
-.metric-card {
-    background: #1a1a1a;
-    border-radius: 12px;
-    padding: 1.1rem 1rem;
-    border: 1px solid #2e2e2e;
-}
-.metric-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-.metric-value { font-size: 30px; font-weight: 700; }
-.v-blue   { color: #FFE600; }
-.v-red    { color: #ef5350; }
-.v-green  { color: #66bb6a; }
-.v-yellow { color: #ffa726; }
-
 /* ── Tabela ── */
 .ml-table {
     width: 100%; border-collapse: collapse; font-size: 13px;
@@ -113,28 +98,77 @@ a.ver:hover { color: #fff; }
 }
 .btn-login:hover { background: #e6cf00; }
 
-/* ── Expanders ── */
+/* ══════════════════════════════════════════════════════════
+   METRIC EXPANDERS — cards clicáveis com número em destaque
+   ══════════════════════════════════════════════════════════ */
+
+/* Container geral de cada expander */
 [data-testid="stExpander"] {
     border: 1px solid #2e2e2e !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     margin-bottom: 10px !important;
     background: #1a1a1a !important;
     overflow: hidden;
 }
+
+/* Cabeçalho (summary) estilizado como metric card */
 [data-testid="stExpander"] > details > summary {
-    font-weight: 700 !important;
+    background: #1a1a1a !important;
+    padding: 0 !important;
+    cursor: pointer;
+    list-style: none;
+    display: flex !important;
+    align-items: stretch !important;
+    min-height: 78px;
+}
+[data-testid="stExpander"] > details > summary::-webkit-details-marker { display: none; }
+
+/* Conteúdo do summary renderizado pelo Streamlit */
+[data-testid="stExpander"] > details > summary > div {
+    flex: 1;
+    display: flex !important;
+    align-items: center !important;
+    padding: 1rem 1.2rem !important;
+    gap: 0 !important;
+    width: 100%;
+}
+
+/* Texto interno do summary */
+[data-testid="stExpander"] > details > summary p {
     font-size: 15px !important;
-    padding: 0.85rem 1rem !important;
+    font-weight: 700 !important;
     color: #f0f0f0 !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+    flex: 1;
+}
+
+/* Seta do expander */
+[data-testid="stExpander"] > details > summary svg {
+    fill: #FFE600 !important;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+/* Hover no summary */
+[data-testid="stExpander"] > details > summary:hover {
+    background: #222 !important;
+}
+
+/* Summary quando aberto — borda inferior + texto amarelo */
+[data-testid="stExpander"] > details[open] > summary {
+    border-bottom: 1px solid #2e2e2e !important;
     background: #1a1a1a !important;
 }
-[data-testid="stExpander"] > details > summary:hover { background: #222 !important; }
-[data-testid="stExpander"] > details[open] > summary {
-    border-bottom: 1px solid #2e2e2e;
+[data-testid="stExpander"] > details[open] > summary p {
     color: #FFE600 !important;
 }
-[data-testid="stExpander"] > details > summary svg { fill: #FFE600 !important; }
-[data-testid="stExpander"] > details > div { background: #1a1a1a !important; }
+
+/* Conteúdo interno do expander */
+[data-testid="stExpander"] > details > div {
+    background: #1a1a1a !important;
+    padding: 1rem 1.2rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -342,7 +376,7 @@ paused   = [l for l in listings if l.get("status") == "paused"]
 closed   = [l for l in listings if l.get("status") == "closed"]
 now_str  = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-# Barra de usuário + botão sair
+# ── Barra de usuário + botão sair ──────────────────────────
 col_a, col_b = st.columns([6, 1])
 with col_a:
     st.markdown(
@@ -358,19 +392,9 @@ with col_b:
         st.cache_data.clear()
         st.rerun()
 
-# ── Métricas ───────────────────────────────────────────────
-st.markdown(f"""
-<div class="metric-grid">
-  <div class="metric-card"><div class="metric-label">Total de anúncios</div><div class="metric-value v-blue">{total}</div></div>
-  <div class="metric-card"><div class="metric-label">Sem nenhuma venda</div><div class="metric-value v-red">{len(no_sales)}</div></div>
-  <div class="metric-card"><div class="metric-label">Com vendas</div><div class="metric-value v-green">{len(w_sales)}</div></div>
-  <div class="metric-card"><div class="metric-label">Ativos</div><div class="metric-value v-green">{len(active)}</div></div>
-  <div class="metric-card"><div class="metric-label">Pausados</div><div class="metric-value v-yellow">{len(paused)}</div></div>
-  <div class="metric-card"><div class="metric-label">Fechados</div><div class="metric-value v-red">{len(closed)}</div></div>
-</div>
-""", unsafe_allow_html=True)
-
-# ── Gráficos ───────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# ── Gráficos (fixados no topo, acima dos cards) ────────────
+# ══════════════════════════════════════════════════════════
 age_bins = [0, 0, 0, 0]
 for l in listings:
     d = age_days(l.get("date_created", ""))
@@ -381,7 +405,7 @@ for l in listings:
 
 st.components.v1.html(f"""
 <div style="background:#0d0d0d;padding:4px 0 8px 0">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0.5rem">
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Status dos anúncios</div>
     <canvas id="cStatus" role="img" aria-label="Status" style="max-height:200px"></canvas>
@@ -415,29 +439,26 @@ new Chart(document.getElementById('cAge'), {{
 </script>
 """, height=290)
 
-# ── Seções colapsáveis ─────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+# ── Cards expansíveis (métricas + listagens) ───────────────
+# ══════════════════════════════════════════════════════════
 
-with st.expander(f"🔴  Sem nenhuma venda  —  {len(no_sales)} anúncios", expanded=True):
-    ord_ns = section_sort("ord_nosales", default_index=2)
-    render_table(sort_data(no_sales, ord_ns))
+# Helper: cabeçalho HTML dentro do card (número grande + label)
+def metric_header(icon, color, count, label):
+    return st.markdown(f"""
+    <div style="display:flex;align-items:center;gap:16px;padding:0.2rem 0 0.8rem 0;
+                border-bottom:1px solid #2e2e2e;margin-bottom:1rem">
+      <div style="font-size:40px;font-weight:800;color:{color};line-height:1">{count}</div>
+      <div>
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">{label}</div>
+        <div style="font-size:12px;color:#555">{icon} anúncios</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-with st.expander(f"🟢  Com vendas  —  {len(w_sales)} anúncios", expanded=False):
-    ord_ws = section_sort("ord_wsales", default_index=0)
-    render_table(sort_data(w_sales, ord_ws))
-
-with st.expander(f"✅  Ativos  —  {len(active)} anúncios", expanded=False):
-    ord_act = section_sort("ord_active", default_index=0)
-    render_table(sort_data(active, ord_act))
-
-with st.expander(f"⏸️  Pausados  —  {len(paused)} anúncios", expanded=False):
-    ord_pau = section_sort("ord_paused", default_index=0)
-    render_table(sort_data(paused, ord_pau))
-
-with st.expander(f"🚫  Fechados  —  {len(closed)} anúncios", expanded=False):
-    ord_clo = section_sort("ord_closed", default_index=1)
-    render_table(sort_data(closed, ord_clo))
-
-with st.expander(f"📋  Todos os anúncios  —  {total} anúncios", expanded=False):
+# ── Card 1: Total ──────────────────────────────────────────
+with st.expander(f"📋  Total de anúncios  ·  {total}", expanded=False):
+    metric_header("📋", "#FFE600", total, "Total de anúncios")
     col1, col2, col3 = st.columns([2, 3, 2])
     with col1:
         filtro = st.selectbox(
@@ -461,6 +482,36 @@ with st.expander(f"📋  Todos os anúncios  —  {total} anúncios", expanded=F
     if busca:
         dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
     render_table(sort_data(dados, ordem))
+
+# ── Card 2: Sem nenhuma venda ──────────────────────────────
+with st.expander(f"🔴  Sem nenhuma venda  ·  {len(no_sales)}", expanded=False):
+    metric_header("🔴", "#ef5350", len(no_sales), "Sem nenhuma venda")
+    ord_ns = section_sort("ord_nosales", default_index=2)
+    render_table(sort_data(no_sales, ord_ns))
+
+# ── Card 3: Com vendas ─────────────────────────────────────
+with st.expander(f"🟢  Com vendas  ·  {len(w_sales)}", expanded=False):
+    metric_header("🟢", "#66bb6a", len(w_sales), "Com vendas")
+    ord_ws = section_sort("ord_wsales", default_index=0)
+    render_table(sort_data(w_sales, ord_ws))
+
+# ── Card 4: Ativos ─────────────────────────────────────────
+with st.expander(f"✅  Ativos  ·  {len(active)}", expanded=False):
+    metric_header("✅", "#66bb6a", len(active), "Ativos")
+    ord_act = section_sort("ord_active", default_index=0)
+    render_table(sort_data(active, ord_act))
+
+# ── Card 5: Pausados ───────────────────────────────────────
+with st.expander(f"⏸️  Pausados  ·  {len(paused)}", expanded=False):
+    metric_header("⏸️", "#ffa726", len(paused), "Pausados")
+    ord_pau = section_sort("ord_paused", default_index=0)
+    render_table(sort_data(paused, ord_pau))
+
+# ── Card 6: Fechados ───────────────────────────────────────
+with st.expander(f"🚫  Fechados  ·  {len(closed)}", expanded=False):
+    metric_header("🚫", "#ef5350", len(closed), "Fechados")
+    ord_clo = section_sort("ord_closed", default_index=1)
+    render_table(sort_data(closed, ord_clo))
 
 st.markdown(
     f"<div style='text-align:center;font-size:12px;color:#444;padding:1.5rem'>Painel ML · {now_str}</div>",
