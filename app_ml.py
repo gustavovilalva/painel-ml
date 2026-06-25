@@ -19,7 +19,7 @@ st.markdown("""
 header[data-testid="stHeader"] { display: none; }
 section[data-testid="stSidebar"] { display: none; }
 
-/* ── Textos nativos ── */
+/* ── Textos nativos do Streamlit ── */
 .stApp p, .stApp label, .stApp span, .stApp div { color: #e0e0e0; }
 
 /* ── Selectbox e inputs ── */
@@ -27,49 +27,48 @@ section[data-testid="stSidebar"] { display: none; }
 [data-testid="stTextInput"] > div > div > input {
     background-color: #1e1e1e !important;
     border: 1px solid #333 !important;
-    color: #f0f0f0 !important;
+    color: #e0e0e0 !important;
     border-radius: 8px !important;
 }
-[data-testid="stSelectbox"] > div > div > div { color: #f0f0f0 !important; }
 [data-testid="stSelectbox"] svg { fill: #FFE600 !important; }
-/* Dropdown popover e lista de itens */
-div[data-baseweb="popover"],
-div[data-baseweb="menu"] {
-    background-color: #1e1e1e !important;
-    border: 1px solid #333 !important;
-}
-div[data-baseweb="popover"] ul,
-div[data-baseweb="menu"] ul { background-color: #1e1e1e !important; }
-div[data-baseweb="popover"] li,
-div[data-baseweb="menu"] li { background-color: #1e1e1e !important; color: #f0f0f0 !important; }
-div[data-baseweb="popover"] li:hover,
-div[data-baseweb="menu"] li:hover { background-color: #2a2a2a !important; }
-div[data-baseweb="popover"] li *,
-div[data-baseweb="menu"] li * { color: #f0f0f0 !important; }
+div[data-baseweb="popover"] { background-color: #1e1e1e !important; }
 ul[data-testid="stSelectboxVirtualDropdown"] {
     background-color: #1e1e1e !important;
     border: 1px solid #333 !important;
 }
-ul[data-testid="stSelectboxVirtualDropdown"] li { background-color: #1e1e1e !important; }
 ul[data-testid="stSelectboxVirtualDropdown"] li:hover { background-color: #2a2a2a !important; }
-ul[data-testid="stSelectboxVirtualDropdown"] li span,
-ul[data-testid="stSelectboxVirtualDropdown"] li div,
-ul[data-testid="stSelectboxVirtualDropdown"] li p { color: #f0f0f0 !important; }
+ul[data-testid="stSelectboxVirtualDropdown"] li span { color: #ffffff !important; }
+ul[data-testid="stSelectboxVirtualDropdown"] li { color: #ffffff !important; }
+/* Texto selecionado e placeholder dentro do selectbox */
+[data-testid="stSelectbox"] span,
+[data-testid="stSelectbox"] div[class*="placeholder"],
+[data-testid="stSelectbox"] div[class*="singleValue"] { color: #ffffff !important; }
+/* Opções do dropdown — texto branco em todos os estados */
+div[data-baseweb="select"] li,
+div[data-baseweb="select"] li span,
+div[data-baseweb="menu"] li span,
+div[data-baseweb="menu"] span { color: #ffffff !important; }
 
 /* ── Botão Sair ── */
-[data-testid="stButton"] > button {
+.st-key-btn_sair button {
     background-color: #1e1e1e !important;
     color: #FFE600 !important;
     border: 1px solid #FFE600 !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
+    height: auto !important;
+    padding: 0.4rem 1rem !important;
+    font-size: 14px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
 }
-[data-testid="stButton"] > button:hover {
+.st-key-btn_sair button:hover {
     background-color: #FFE600 !important;
     color: #0d0d0d !important;
 }
 
-/* ── Mensagens ── */
+/* ── Spinner e mensagens ── */
+[data-testid="stStatusWidget"] { color: #FFE600 !important; }
 .stSuccess { background-color: #0f2a0f !important; color: #4caf50 !important; border: 1px solid #2e7d32 !important; }
 
 /* ── Tabela ── */
@@ -114,13 +113,146 @@ a.ver:hover { color: #fff; }
 }
 .btn-login:hover { background: #e6cf00; }
 
-/* ── Título da seção ── */
-.section-title {
-    font-size: 17px; font-weight: 700; color: #f0f0f0;
-    padding: 1rem 0 0.5rem;
-    border-bottom: 2px solid #FFE600;
-    margin-bottom: 1rem;
-    display: inline-block;
+/* ══════════════════════════════════════════════════════════
+   METRIC CARDS — blocos clicáveis em grid 3x2
+   ══════════════════════════════════════════════════════════ */
+
+/* Base: todos os card-buttons */
+.st-key-card_total button,
+.st-key-card_nosales button,
+.st-key-card_wsales button,
+.st-key-card_active button,
+.st-key-card_paused button,
+.st-key-card_closed button {
+    background-color: #1a1a1a !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 14px !important;
+    height: 90px !important;
+    width: 100% !important;
+    padding: 0.85rem 1.4rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+    align-items: center !important;
+    white-space: pre-line !important;
+    line-height: 1.5 !important;
+    font-size: 11px !important;
+    color: #FFE600 !important;
+    font-weight: 600 !important;
+    transition: border-color .15s, background .15s !important;
+    cursor: pointer !important;
+}
+.st-key-card_total button:hover,
+.st-key-card_nosales button:hover,
+.st-key-card_wsales button:hover,
+.st-key-card_active button:hover,
+.st-key-card_paused button:hover,
+.st-key-card_closed button:hover {
+    background-color: #222 !important;
+    border-color: #FFE600 !important;
+}
+
+/* Número — segunda linha do label (texto maior) */
+.st-key-card_total button p,
+.st-key-card_nosales button p,
+.st-key-card_wsales button p,
+.st-key-card_active button p,
+.st-key-card_paused button p,
+.st-key-card_closed button p {
+    font-size: 11px !important;
+    color: #FFE600 !important;
+    line-height: 1.5 !important;
+}
+
+/* Número (primeira linha) — maior e bold */
+.st-key-card_total button p::first-line,
+.st-key-card_nosales button p::first-line,
+.st-key-card_wsales button p::first-line,
+.st-key-card_active button p::first-line,
+.st-key-card_paused button p::first-line,
+.st-key-card_closed button p::first-line {
+    font-size: 34px !important;
+    font-weight: 800 !important;
+    color: #FFE600 !important;
+}
+
+/* Parágrafo centralizado */
+.st-key-card_total button p,
+.st-key-card_nosales button p,
+.st-key-card_wsales button p,
+.st-key-card_active button p,
+.st-key-card_paused button p,
+.st-key-card_closed button p {
+    text-align: center !important;
+    width: 100% !important;
+}
+
+/* Card SELECIONADO — borda destacada */
+.st-key-card_total.selected-card button   { border-color: #FFE600 !important; background: #1e1c00 !important; }
+.st-key-card_nosales.selected-card button { border-color: #ef5350 !important; background: #1e0808 !important; }
+.st-key-card_wsales.selected-card button  { border-color: #66bb6a !important; background: #081e08 !important; }
+.st-key-card_active.selected-card button  { border-color: #66bb6a !important; background: #081e08 !important; }
+.st-key-card_paused.selected-card button  { border-color: #ffa726 !important; background: #1e1200 !important; }
+.st-key-card_closed.selected-card button  { border-color: #ef5350 !important; background: #1e0808 !important; }
+
+/* ── Mini-cards de faixa etária (dentro de Sem vendas) ── */
+.st-key-ns_all button,
+.st-key-ns_15 button,
+.st-key-ns_30 button,
+.st-key-ns_60 button,
+.st-key-ns_60p button {
+    background-color: #111 !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 10px !important;
+    height: 68px !important;
+    width: 100% !important;
+    padding: 0.6rem 1rem !important;
+    text-align: left !important;
+    white-space: pre-line !important;
+    line-height: 1.45 !important;
+    font-size: 10px !important;
+    color: #FFE600 !important;
+    font-weight: 600 !important;
+    transition: border-color .15s, background .15s !important;
+    cursor: pointer !important;
+}
+.st-key-ns_all button:hover,
+.st-key-ns_15 button:hover,
+.st-key-ns_30 button:hover,
+.st-key-ns_60 button:hover,
+.st-key-ns_60p button:hover {
+    border-color: #FFE600 !important;
+    background-color: #1a1800 !important;
+}
+.st-key-ns_all button p::first-line,
+.st-key-ns_15 button p::first-line,
+.st-key-ns_30 button p::first-line,
+.st-key-ns_60 button p::first-line,
+.st-key-ns_60p button p::first-line {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+}
+.st-key-ns_all button p,
+.st-key-ns_15 button p,
+.st-key-ns_30 button p,
+.st-key-ns_60 button p,
+.st-key-ns_60p button p { text-align: center !important; }
+
+/* Painel de tabela abaixo do grid */
+.table-panel {
+    background: #1a1a1a;
+    border: 1px solid #2e2e2e;
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    margin-top: 4px;
+}
+.panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -250,6 +382,11 @@ def render_table(data):
     </table><br>
     """, unsafe_allow_html=True)
 
+def section_sort(key, default_index=0):
+    _, col_sort = st.columns([4, 1])
+    with col_sort:
+        return st.selectbox("Ordenar por", SORT_OPTIONS, index=default_index, key=key, label_visibility="collapsed")
+
 # ── Header ─────────────────────────────────────────────────
 st.markdown("""
 <div style='background:#FFE600;padding:0.85rem 1.5rem;display:flex;align-items:center;gap:12px'>
@@ -286,27 +423,32 @@ if "access_token" not in st.session_state:
       <div style='font-size:48px;margin-bottom:1rem'>🛒</div>
       <h2>Painel de Anúncios</h2>
       <p>Faça login com sua conta do Mercado Livre<br>para visualizar e analisar seus anúncios.</p>
-      <a href="{auth_url}" class="btn-login" target="_self">🔑 Entrar com Mercado Livre</a>
+      <a href="{auth_url}" class="btn-login">🔑 Entrar com Mercado Livre</a>
     </div>
     """, unsafe_allow_html=True)
     st.stop()
 
-# Renovar token se necessário
+# Renovar token se necessário — verifica no máximo 1× a cada 5 min
+import time as _time
 access_token = st.session_state["access_token"]
-test = requests.get(
-    "https://api.mercadolibre.com/users/me",
-    headers={"Authorization": f"Bearer {access_token}"}, timeout=10
-)
-if test.status_code == 401 and st.session_state.get("refresh_token"):
-    try:
-        new_tokens = refresh_token_fn(st.session_state["refresh_token"])
-        st.session_state["access_token"]  = new_tokens["access_token"]
-        st.session_state["refresh_token"] = new_tokens.get("refresh_token", st.session_state["refresh_token"])
-        access_token = st.session_state["access_token"]
-        st.cache_data.clear()
-    except:
-        del st.session_state["access_token"]
-        st.rerun()
+_last_check  = st.session_state.get("_last_token_check", 0)
+
+if _time.time() - _last_check > 300:          # só bate na API a cada 5 min
+    test = requests.get(
+        "https://api.mercadolibre.com/users/me",
+        headers={"Authorization": f"Bearer {access_token}"}, timeout=10
+    )
+    st.session_state["_last_token_check"] = _time.time()
+    if test.status_code == 401 and st.session_state.get("refresh_token"):
+        try:
+            new_tokens = refresh_token_fn(st.session_state["refresh_token"])
+            st.session_state["access_token"]  = new_tokens["access_token"]
+            st.session_state["refresh_token"] = new_tokens.get("refresh_token", st.session_state["refresh_token"])
+            access_token = st.session_state["access_token"]
+            st.cache_data.clear()
+        except:
+            del st.session_state["access_token"]
+            st.rerun()
 
 # ── Carregar dados ─────────────────────────────────────────
 with st.spinner("Carregando seus anúncios..."):
@@ -324,10 +466,13 @@ paused   = [l for l in listings if l.get("status") == "paused"]
 closed   = [l for l in listings if l.get("status") == "closed"]
 now_str  = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-# View selecionada via query param (definida pelos cards clicáveis)
-current_view = st.query_params.get("view", "todos")
+# ── Sub-faixas: sem vendas por idade do anúncio ────────────
+ns_15  = [l for l in no_sales if age_days(l.get("date_created","")) <= 15]
+ns_30  = [l for l in no_sales if 16 <= age_days(l.get("date_created","")) <= 30]
+ns_60  = [l for l in no_sales if 31 <= age_days(l.get("date_created","")) <= 60]
+ns_60p = [l for l in no_sales if age_days(l.get("date_created","")) > 60]
 
-# Barra de usuário + botão sair
+# ── Barra de usuário + botão sair ──────────────────────────
 col_a, col_b = st.columns([6, 1])
 with col_a:
     st.markdown(
@@ -337,82 +482,13 @@ with col_a:
         unsafe_allow_html=True
     )
 with col_b:
-    if st.button("🚪 Sair"):
+    if st.button("🚪 Sair", key="btn_sair"):
         for k in ["access_token", "refresh_token"]:
             st.session_state.pop(k, None)
         st.cache_data.clear()
-        st.query_params.clear()
         st.rerun()
 
-# ── Cards clicáveis de métricas ────────────────────────────
-def card_style(view_key):
-    if current_view == view_key:
-        return "background:#1e1c00;border:2px solid #FFE600;border-radius:12px;padding:1.1rem 1rem;cursor:pointer;transition:all 0.15s;user-select:none;"
-    return "background:#1a1a1a;border:1px solid #2e2e2e;border-radius:12px;padding:1.1rem 1rem;cursor:pointer;transition:all 0.15s;user-select:none;"
-
-st.components.v1.html(f"""
-<style>
-  body {{ margin:0; padding:0; background:#0d0d0d; }}
-  .mgrid {{ display:grid; grid-template-columns:repeat(6,1fr); gap:12px; padding:12px 0 4px 0; }}
-  .mcard {{ border-radius:12px; padding:1.1rem 1rem; cursor:pointer; transition:all 0.15s; user-select:none; }}
-  .mcard:hover {{ filter:brightness(1.15); }}
-  .mlabel {{ font-size:12px; color:#ccc; margin-bottom:6px; font-family:sans-serif; }}
-  .mvalue {{ font-size:30px; font-weight:700; font-family:sans-serif; }}
-  .c-yellow {{ color:#FFE600; }}
-  .c-red    {{ color:#ef5350; }}
-  .c-green  {{ color:#66bb6a; }}
-  .c-orange {{ color:#ffa726; }}
-  .inactive {{ background:#1a1a1a; border:1px solid #2e2e2e; }}
-  .active   {{ background:#1e1c00; border:2px solid #FFE600; }}
-</style>
-<div class="mgrid">
-  <div class="mcard {'active' if current_view == 'todos' else 'inactive'}" onclick="setView('todos')">
-    <div class="mlabel">Total de anúncios</div>
-    <div class="mvalue c-yellow">{total}</div>
-  </div>
-  <div class="mcard {'active' if current_view == 'sem_venda' else 'inactive'}" onclick="setView('sem_venda')">
-    <div class="mlabel">Sem nenhuma venda</div>
-    <div class="mvalue c-red">{len(no_sales)}</div>
-  </div>
-  <div class="mcard {'active' if current_view == 'com_venda' else 'inactive'}" onclick="setView('com_venda')">
-    <div class="mlabel">Com vendas</div>
-    <div class="mvalue c-green">{len(w_sales)}</div>
-  </div>
-  <div class="mcard {'active' if current_view == 'ativos' else 'inactive'}" onclick="setView('ativos')">
-    <div class="mlabel">Ativos</div>
-    <div class="mvalue c-green">{len(active)}</div>
-  </div>
-  <div class="mcard {'active' if current_view == 'pausados' else 'inactive'}" onclick="setView('pausados')">
-    <div class="mlabel">Pausados</div>
-    <div class="mvalue c-orange">{len(paused)}</div>
-  </div>
-  <div class="mcard {'active' if current_view == 'fechados' else 'inactive'}" onclick="setView('fechados')">
-    <div class="mlabel">Fechados</div>
-    <div class="mvalue c-red">{len(closed)}</div>
-  </div>
-</div>
-<script>
-function setView(v) {{
-  try {{
-    var url = new URL(window.top.location.href);
-    url.searchParams.set('view', v);
-    window.top.location.href = url.toString();
-  }} catch(e) {{
-    try {{
-      var a = document.createElement('a');
-      a.href = window.top.location.pathname + '?view=' + v;
-      a.target = '_top';
-      document.body.appendChild(a);
-      a.click();
-    }} catch(e2) {{
-      window.location.href = '?view=' + v;
-    }}
-  }}
-}}
-</script>
-""", height=130)
-
-# ── Gráficos ───────────────────────────────────────────────
+# ── Gráficos (topo) ─────────────────────────────────────────
 age_bins = [0, 0, 0, 0]
 for l in listings:
     d = age_days(l.get("date_created", ""))
@@ -423,14 +499,14 @@ for l in listings:
 
 st.components.v1.html(f"""
 <div style="background:#0d0d0d;padding:4px 0 8px 0">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0.5rem">
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Status dos anúncios</div>
-    <canvas id="cStatus" style="max-height:190px"></canvas>
+    <canvas id="cStatus" style="max-height:200px"></canvas>
   </div>
   <div style="background:#1a1a1a;border-radius:12px;border:1px solid #2e2e2e;padding:1.25rem">
     <div style="font-size:13px;color:#888;font-weight:600;margin-bottom:1rem">Anúncios por idade</div>
-    <canvas id="cAge" style="max-height:190px"></canvas>
+    <canvas id="cAge" style="max-height:200px"></canvas>
   </div>
 </div>
 </div>
@@ -439,107 +515,236 @@ st.components.v1.html(f"""
 Chart.defaults.color = '#888';
 new Chart(document.getElementById('cStatus'), {{
   type: 'doughnut',
-  data: {{ labels: ['Ativos','Pausados','Fechados'],
-    datasets: [{{ data: [{len(active)},{len(paused)},{len(closed)}],
-      backgroundColor: ['#66bb6a','#ffa726','#ef5350'], borderWidth: 0 }}] }},
-  options: {{ responsive: true, maintainAspectRatio: true,
-    plugins: {{ legend: {{ position: 'right', labels: {{ color:'#bbb', font:{{size:12}}, boxWidth:12 }} }} }} }}
+  data: {{
+    labels: ['Ativos c/ vendas','Sem nenhuma venda','Pausados','Fechados'],
+    datasets: [{{
+      data: [{len(active) - len([l for l in no_sales if l.get('status')=='active'])},{len([l for l in no_sales if l.get('status')=='active'])},{len(paused)},{len(closed)}],
+      backgroundColor: ['#66bb6a','#ef5350','#ffa726','#b71c1c'],
+      borderWidth: 0
+    }}]
+  }},
+  options: {{ responsive: true, maintainAspectRatio: true, plugins: {{ legend: {{ position: 'right', labels: {{ color:'#bbb', font: {{ size: 12 }}, boxWidth: 12 }} }} }} }}
 }});
 new Chart(document.getElementById('cAge'), {{
   type: 'bar',
-  data: {{ labels: ['< 1 mês','1-6 meses','6-12 meses','> 1 ano'],
-    datasets: [{{ data: {age_bins},
-      backgroundColor: ['#FFE600','#c9b800','#9e8f00','#6e6300'], borderRadius: 6 }}] }},
-  options: {{ responsive: true, maintainAspectRatio: true,
+  data: {{ labels: ['< 1 mês','1-6 meses','6-12 meses','> 1 ano'], datasets: [{{ data: {age_bins}, backgroundColor: ['#FFE600','#c9b800','#9e8f00','#6e6300'], borderRadius: 6 }}] }},
+  options: {{
+    responsive: true, maintainAspectRatio: true,
     plugins: {{ legend: {{ display: false }} }},
     scales: {{
-      y: {{ beginAtZero:true, ticks:{{stepSize:1,font:{{size:11}},color:'#888'}}, grid:{{color:'#222'}} }},
-      x: {{ ticks:{{font:{{size:11}},color:'#888'}}, grid:{{color:'#222'}} }}
+      y: {{ beginAtZero: true, ticks: {{ stepSize: 1, font: {{ size: 11 }}, color:'#888' }}, grid: {{ color:'#222' }} }},
+      x: {{ ticks: {{ font: {{ size: 11 }}, color:'#888' }}, grid: {{ color:'#222' }} }}
     }}
   }}
 }});
 </script>
-""", height=275)
+""", height=290)
 
-# ── Tabela da view selecionada ─────────────────────────────
-view_config = {
-    "todos":     ("📋 Todos os anúncios",       listings,  0),
-    "sem_venda": ("🔴 Sem nenhuma venda",        no_sales,  2),
-    "com_venda": ("🟢 Com vendas",               w_sales,   0),
-    "ativos":    ("✅ Ativos",                   active,    0),
-    "pausados":  ("⏸️ Pausados",                paused,    0),
-    "fechados":  ("🚫 Fechados",                 closed,    1),
+# ══════════════════════════════════════════════════════════
+# ── Grid de cards (3 × 2) + tabela abaixo ─────────────────
+# ══════════════════════════════════════════════════════════
+
+# Estado: qual seção está aberta
+if "open_section" not in st.session_state:
+    st.session_state["open_section"] = None
+if "nosales_filter" not in st.session_state:
+    st.session_state["nosales_filter"] = "all"
+
+def toggle(name):
+    st.session_state["open_section"] = name if st.session_state["open_section"] != name else None
+
+# ── Linha 1 de cards ──────────────────────────────────────
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    if st.button(
+        f"{total}\nTotal de anúncios",
+        key="card_total", use_container_width=True
+    ):
+        toggle("total")
+
+with c2:
+    if st.button(
+        f"{len(no_sales)}\nSem nenhuma venda",
+        key="card_nosales", use_container_width=True
+    ):
+        toggle("nosales")
+
+with c3:
+    if st.button(
+        f"{len(w_sales)}\nCom vendas",
+        key="card_wsales", use_container_width=True
+    ):
+        toggle("wsales")
+
+# ── Linha 2 de cards ──────────────────────────────────────
+c4, c5, c6 = st.columns(3)
+
+with c4:
+    if st.button(
+        f"{len(active)}\nAtivos",
+        key="card_active", use_container_width=True
+    ):
+        toggle("active")
+
+with c5:
+    if st.button(
+        f"{len(paused)}\nPausados",
+        key="card_paused", use_container_width=True
+    ):
+        toggle("paused")
+
+with c6:
+    if st.button(
+        f"{len(closed)}\nFechados",
+        key="card_closed", use_container_width=True
+    ):
+        toggle("closed")
+
+# Lê o estado DEPOIS dos botões — captura o toggle do clique atual
+open_sec = st.session_state.get("open_section")
+
+# ── CSS dinâmico: destaca o card selecionado ──────────────
+if open_sec:
+    key_map = {
+        "total":   ("card_total",   "#FFE600", "#1e1c00"),
+        "nosales": ("card_nosales", "#ef5350", "#1e0808"),
+        "wsales":  ("card_wsales",  "#66bb6a", "#081e08"),
+        "active":  ("card_active",  "#66bb6a", "#081e08"),
+        "paused":  ("card_paused",  "#ffa726", "#1e1200"),
+        "closed":  ("card_closed",  "#ef5350", "#1e0808"),
+    }
+    css_key, bdr_color, bg_color = key_map[open_sec]
+    st.markdown(f"""
+    <style>
+    .st-key-{css_key} button {{
+        border-color: {bdr_color} !important;
+        background-color: {bg_color} !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+# ── Painel da tabela (largura total) ──────────────────────
+PANEL_TITLES = {
+    "total":   ("📋", "Total de anúncios"),
+    "nosales": ("🔴", "Sem nenhuma venda"),
+    "wsales":  ("🟢", "Com vendas"),
+    "active":  ("✅", "Ativos"),
+    "paused":  ("⏸️", "Pausados"),
+    "closed":  ("🚫", "Fechados"),
 }
 
-title, dados_view, default_sort = view_config.get(current_view, view_config["todos"])
+if open_sec:
+    icon, title = PANEL_TITLES[open_sec]
 
-st.markdown(f"<div class='section-title'>{title} &nbsp;({len(dados_view)})</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;
+                padding:1.2rem 1.4rem;margin-top:4px">
+      <div style="font-size:15px;font-weight:700;color:#f0f0f0;
+                  margin-bottom:1rem;display:flex;align-items:center;gap:8px">
+        <span>{icon}</span> {title}
+      </div>
+    """, unsafe_allow_html=True)
 
-# Controles: busca + ordenação (+ filtros extras por view)
-if current_view == "todos":
-    c1, c2, c3 = st.columns([2, 3, 2])
-    with c1:
-        filtro = st.selectbox("Status", ["Todos", "Ativos", "Pausados", "Fechados"],
-                              label_visibility="collapsed", key="filtro_status")
-        if filtro == "Ativos":     dados_view = active
-        elif filtro == "Pausados": dados_view = paused
-        elif filtro == "Fechados": dados_view = closed
-    with c2:
-        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
-                              label_visibility="collapsed", key="busca_todos")
+    # Filtro extra para "Total"
+    if open_sec == "total":
+        f1, f2, f3 = st.columns([2, 3, 2])
+        with f1:
+            filtro = st.selectbox(
+                "Status", ["Todos", "Ativos", "Pausados", "Fechados"],
+                label_visibility="collapsed", key="filtro_todos"
+            )
+        with f2:
+            busca = st.text_input(
+                "Buscar", placeholder="🔍  Buscar por título...",
+                label_visibility="collapsed", key="busca_todos"
+            )
+        with f3:
+            ordem = st.selectbox(
+                "Ordenar", SORT_OPTIONS,
+                key="ord_todos", label_visibility="collapsed"
+            )
+        dados = listings
+        if filtro == "Ativos":     dados = active
+        elif filtro == "Pausados": dados = paused
+        elif filtro == "Fechados": dados = closed
         if busca:
-            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
-    with c3:
-        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
-                             label_visibility="collapsed", key="ord_todos")
+            dados = [l for l in dados if busca.lower() in l.get("title", "").lower()]
+        render_table(sort_data(dados, ordem))
 
-elif current_view == "sem_venda":
-    # Filtro de período exclusivo para anúncios sem venda
-    PERIODO_OPTS = {
-        "⏱️ Todos os períodos": 0,
-        "📅 Mais de 15 dias":   15,
-        "📅 Mais de 30 dias":   30,
-        "📅 Mais de 60 dias":   60,
-        "📅 Mais de 90 dias":   90,
-    }
-    c1, c2, c3 = st.columns([2, 3, 2])
-    with c1:
-        periodo_label = st.selectbox(
-            "Período sem venda", list(PERIODO_OPTS.keys()),
-            label_visibility="collapsed", key="filtro_periodo"
-        )
-        min_dias = PERIODO_OPTS[periodo_label]
-        if min_dias > 0:
-            dados_view = [l for l in dados_view if age_days(l.get("date_created","")) >= min_dias]
-    with c2:
-        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
-                              label_visibility="collapsed", key="busca_view")
-        if busca:
-            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
-    with c3:
-        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
-                             label_visibility="collapsed", key="ord_view")
+    elif open_sec == "nosales":
+        # ── Mini-cards de faixa etária ────────────────────
+        nf = st.session_state["nosales_filter"]
 
-    # Resumo do filtro aplicado
-    if min_dias > 0:
-        st.markdown(
-            f"<div style='font-size:12px;color:#ffa726;padding:4px 0 8px'>"
-            f"🔎 Mostrando {len(dados_view)} anúncio(s) com mais de {min_dias} dias sem nenhuma venda.</div>",
-            unsafe_allow_html=True
-        )
+        mc1, mc2, mc3, mc4, mc5 = st.columns(5)
+        with mc1:
+            if st.button(f"{len(no_sales)}\nTodos", key="ns_all", use_container_width=True):
+                st.session_state["nosales_filter"] = "all"
+                nf = "all"
+        with mc2:
+            if st.button(f"{len(ns_15)}\n≤ 15 dias", key="ns_15", use_container_width=True):
+                st.session_state["nosales_filter"] = "15"
+                nf = "15"
+        with mc3:
+            if st.button(f"{len(ns_30)}\n16 – 30 dias", key="ns_30", use_container_width=True):
+                st.session_state["nosales_filter"] = "30"
+                nf = "30"
+        with mc4:
+            if st.button(f"{len(ns_60)}\n31 – 60 dias", key="ns_60", use_container_width=True):
+                st.session_state["nosales_filter"] = "60"
+                nf = "60"
+        with mc5:
+            if st.button(f"{len(ns_60p)}\n> 60 dias", key="ns_60p", use_container_width=True):
+                st.session_state["nosales_filter"] = "60p"
+                nf = "60p"
 
-else:
-    c1, c2 = st.columns([4, 1])
-    with c1:
-        busca = st.text_input("Buscar", placeholder="🔍  Buscar por título...",
-                              label_visibility="collapsed", key="busca_view")
-        if busca:
-            dados_view = [l for l in dados_view if busca.lower() in l.get("title","").lower()]
-    with c2:
-        ordem = st.selectbox("Ordenar", SORT_OPTIONS, index=default_sort,
-                             label_visibility="collapsed", key="ord_view")
+        # Lê o filtro atualizado depois dos botões
+        nf = st.session_state["nosales_filter"]
 
-render_table(sort_data(dados_view, ordem))
+        # Destaca mini-card selecionado
+        selected_ns_key = {"all":"ns_all","15":"ns_15","30":"ns_30","60":"ns_60","60p":"ns_60p"}.get(nf,"ns_all")
+        st.markdown(f"""
+        <style>
+        .st-key-{selected_ns_key} button {{
+            border-color: #FFE600 !important;
+            background-color: #1e1c00 !important;
+        }}
+        </style>""", unsafe_allow_html=True)
+
+        # Dados filtrados
+        ns_data_map = {"all": no_sales, "15": ns_15, "30": ns_30, "60": ns_60, "60p": ns_60p}
+        dados_ns = ns_data_map.get(nf, no_sales)
+
+        _, col_sort = st.columns([4, 1])
+        with col_sort:
+            ordem = st.selectbox("Ordenar por", SORT_OPTIONS, index=2,
+                                 key="ord_nosales", label_visibility="collapsed")
+        render_table(sort_data(dados_ns, ordem))
+
+    else:
+        sort_map = {
+            "wsales":  ("ord_wsales",  0),
+            "active":  ("ord_active",  0),
+            "paused":  ("ord_paused",  0),
+            "closed":  ("ord_closed",  1),
+        }
+        sort_key, sort_def = sort_map[open_sec]
+        data_map = {
+            "wsales":  w_sales,
+            "active":  active,
+            "paused":  paused,
+            "closed":  closed,
+        }
+        _, col_sort = st.columns([4, 1])
+        with col_sort:
+            ordem = st.selectbox(
+                "Ordenar por", SORT_OPTIONS,
+                index=sort_def, key=sort_key,
+                label_visibility="collapsed"
+            )
+        render_table(sort_data(data_map[open_sec], ordem))
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
     f"<div style='text-align:center;font-size:12px;color:#444;padding:1.5rem'>Painel ML · {now_str}</div>",
